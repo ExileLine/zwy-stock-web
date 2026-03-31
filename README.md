@@ -1,2 +1,6 @@
-# zwy-stock-web
-zwy-stock-web
+
+## 运行
+
+```shell
+npm install && npm run dev
+```
