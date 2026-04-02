@@ -157,6 +157,19 @@ export const stockService = {
   },
 };
 
+// 出库创建参数类型（基于入库记录）
+export interface OutboundCreateParams {
+  inbound_record_id: number;  // 入库记录ID（必填）
+  outbound_qty: number;       // 领用数量（必填）
+  outbound_date?: string;     // 领用日期
+  usage_purpose?: string;     // 用途
+  target_device_serial_number?: string;  // 用于设备序列号
+  target_room?: string;        // 用于机房
+  target_device_location?: string;  // 用于设备位置
+  owner_org?: string;         // 设备归属用户单位
+  remark?: string;            // 备注
+}
+
 export const outboundService = {
   async getList(isMock: boolean, query?: OutboundPageQuery): Promise<{ records: OutboundItem[]; total: number }> {
     if (isMock) {
@@ -187,18 +200,40 @@ export const outboundService = {
     };
   },
 
-  async add(isMock: boolean, item: Omit<OutboundItem, 'id'>): Promise<OutboundItem> {
+  // 基于入库记录创建出库
+  async add(isMock: boolean, params: OutboundCreateParams): Promise<OutboundItem> {
     if (isMock) {
-      const newItem = { ...item, id: Math.random().toString(36).substr(2, 9) };
+      // Mock 模式：从入库数据中查找对应的记录
+      const stockItem = currentStockData.find((item) => item.id === params.inbound_record_id.toString());
+      if (!stockItem) {
+        throw new Error('入库记录不存在');
+      }
+      const newItem: OutboundItem = {
+        id: Math.random().toString(36).substr(2, 9),
+        date: params.outbound_date || new Date().toISOString().split('T')[0],
+        serialNumber: stockItem.serialNumber,
+        productName: stockItem.productName,
+        brand: stockItem.brand,
+        spec: stockItem.spec,
+        materialCode: stockItem.materialCode,
+        quantity: params.outbound_qty,
+        purpose: params.usage_purpose || '',
+        warehouse: params.target_room || '',
+        department: params.owner_org || '',
+        pnCode: stockItem.pnCode,
+        appliedDeviceSerial: params.target_device_serial_number,
+        location: params.target_device_location,
+        remark: params.remark,
+      };
       currentOutboundData = [newItem, ...currentOutboundData];
       return newItem;
     }
 
-    const apiData = outboundToApi(item);
-    const result = await request<any>(API_ENDPOINTS.OUTBOUND_CREATE, 'POST', apiData);
+    const result = await request<any>(API_ENDPOINTS.OUTBOUND_CREATE, 'POST', params);
     return outboundFromApi(result) as OutboundItem;
   },
 
+  // 出库更新接口（swagger 中未定义，保留原逻辑用于 mock 模式）
   async update(isMock: boolean, id: string, item: Partial<OutboundItem>): Promise<OutboundItem> {
     if (isMock) {
       const index = currentOutboundData.findIndex((i) => i.id === id);
@@ -209,17 +244,18 @@ export const outboundService = {
       throw new Error('Item not found');
     }
 
-    const apiData = { ...outboundToApi(item), id };
-    const result = await request<any>(API_ENDPOINTS.OUTBOUND_UPDATE, 'POST', apiData);
-    return outboundFromApi(result) as OutboundItem;
+    // 如果后端实现了更新接口，可以在这里调用
+    throw new Error('出库记录更新接口暂未实现');
   },
 
+  // 出库删除接口（swagger 中未定义，保留原逻辑用于 mock 模式）
   async delete(isMock: boolean, id: string): Promise<void> {
     if (isMock) {
       currentOutboundData = currentOutboundData.filter((i) => i.id !== id);
       return;
     }
 
-    await request<void>(API_ENDPOINTS.OUTBOUND_DELETE, 'POST', { id });
+    // 如果后端实现了删除接口，可以在这里调用
+    throw new Error('出库记录删除接口暂未实现');
   },
 };

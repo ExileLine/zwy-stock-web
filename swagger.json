@@ -1,45 +1,69 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
-    "title": "库存管理 API",
-    "description": "库存入库和出库管理系统 API 文档",
+    "title": "zwy-stock-service",
+    "summary": "I hope every day is fulfilling, and everything follows best practices.",
+    "description": "description",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "/api/v1",
-      "description": "API 基础路径"
-    }
-  ],
-  "tags": [
-    {
-      "name": "stock",
-      "description": "库存管理相关接口"
-    }
-  ],
   "paths": {
-    "/stock/page": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health check",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Check Api V1 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/page": {
       "post": {
-        "tags": ["stock"],
+        "tags": [
+          "stock"
+        ],
         "summary": "库存列表(分页模糊搜索)",
-        "description": "根据条件分页查询库存入库记录",
+        "operationId": "list_stock_records_api_v1_stock_page_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StockInboundPageQuery"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "操作成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_PageResult"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -47,28 +71,38 @@
         }
       }
     },
-    "/stock/create": {
+    "/api/v1/stock/create": {
       "post": {
-        "tags": ["stock"],
+        "tags": [
+          "stock"
+        ],
         "summary": "新增库存",
-        "description": "创建新的库存入库记录",
+        "operationId": "create_stock_record_api_v1_stock_create_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StockInboundCreate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "创建成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_StockInbound"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -76,28 +110,38 @@
         }
       }
     },
-    "/stock/update": {
+    "/api/v1/stock/update": {
       "post": {
-        "tags": ["stock"],
+        "tags": [
+          "stock"
+        ],
         "summary": "编辑库存",
-        "description": "更新库存入库记录",
+        "operationId": "update_stock_record_api_v1_stock_update_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StockInboundUpdate"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "编辑成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_StockInbound"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -105,28 +149,38 @@
         }
       }
     },
-    "/stock/delete": {
+    "/api/v1/stock/delete": {
       "post": {
-        "tags": ["stock"],
+        "tags": [
+          "stock"
+        ],
         "summary": "删除库存",
-        "description": "删除库存入库记录（逻辑删除）",
+        "operationId": "delete_stock_record_api_v1_stock_delete_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StockInboundDelete"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "删除成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -134,28 +188,38 @@
         }
       }
     },
-    "/stock/outbound/page": {
+    "/api/v1/stock/outbound/page": {
       "post": {
-        "tags": ["stock"],
-        "summary": "出库列表(分页模糊搜索)",
-        "description": "根据条件分页查询库存出库记录",
+        "tags": [
+          "stock"
+        ],
+        "summary": "出库记录列表(分页模糊搜索)",
+        "operationId": "list_stock_outbound_records_api_v1_stock_outbound_page_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/StockOutboundPageQuery"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "操作成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_PageResult"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -163,28 +227,38 @@
         }
       }
     },
-    "/stock/outbound/create": {
+    "/api/v1/stock/outbound/create": {
       "post": {
-        "tags": ["stock"],
-        "summary": "新增出库",
-        "description": "创建新的库存出库记录",
+        "tags": [
+          "stock"
+        ],
+        "summary": "出库",
+        "operationId": "create_stock_outbound_record_api_v1_stock_outbound_create_post",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StockOutboundCreate"
+                "$ref": "#/components/schemas/StockOutboundCreateFromInbound"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
-            "description": "创建成功",
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_StockOutbound"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -192,58 +266,19 @@
         }
       }
     },
-    "/stock/outbound/update": {
-      "post": {
-        "tags": ["stock"],
-        "summary": "编辑出库",
-        "description": "更新库存出库记录",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StockOutboundUpdate"
-              }
-            }
-          }
-        },
+    "/": {
+      "get": {
+        "tags": [
+          "root"
+        ],
+        "summary": "根节点",
+        "operationId": "root_redirect__get",
         "responses": {
           "200": {
-            "description": "编辑成功",
+            "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_StockOutbound"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/stock/outbound/delete": {
-      "post": {
-        "tags": ["stock"],
-        "summary": "删除出库",
-        "description": "删除库存出库记录（逻辑删除）",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StockOutboundDelete"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "删除成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                }
+                "schema": {}
               }
             }
           }
@@ -253,713 +288,1109 @@
   },
   "components": {
     "schemas": {
-      "ApiResponse": {
-        "type": "object",
+      "HTTPValidationError": {
         "properties": {
-          "code": {
-            "type": "integer",
-            "description": "响应状态码",
-            "example": 200
-          },
-          "message": {
-            "type": "string",
-            "description": "响应消息",
-            "example": "操作成功"
-          }
-        }
-      },
-      "PageResult": {
-        "type": "object",
-        "properties": {
-          "records": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
             "type": "array",
-            "description": "数据记录列表"
-          },
-          "now_page": {
-            "type": "integer",
-            "description": "当前页码"
-          },
-          "total": {
-            "type": "integer",
-            "description": "总记录数"
+            "title": "Detail"
           }
-        }
-      },
-      "ApiResponse_PageResult": {
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "integer",
-                "example": 200
-              },
-              "message": {
-                "type": "string",
-                "example": "操作成功"
-              },
-              "data": {
-                "$ref": "#/components/schemas/PageResult"
-              }
-            }
-          }
-        ]
-      },
-      "StockInboundRecord": {
+        },
         "type": "object",
-        "description": "库存入库记录",
+        "title": "HTTPValidationError"
+      },
+      "StockInboundCreate": {
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "ID"
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark",
+            "description": "备注",
+            "examples": [
+              ""
+            ]
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator",
+            "description": "创建人(不需要传,从鉴权获取)"
+          },
+          "creator_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Id",
+            "description": "创建人ID(不需要传,从鉴权获取)"
           },
           "inbound_date": {
-            "type": "string",
-            "format": "date",
-            "description": "入库日期",
-            "example": "2026-03-30"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Date",
+            "description": "入库日期"
           },
           "major_category": {
-            "type": "string",
-            "maxLength": 64,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Major Category",
             "description": "大类"
           },
           "product_type": {
-            "type": "string",
-            "maxLength": 64,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type",
             "description": "产品类型"
           },
           "product_name": {
             "type": "string",
-            "maxLength": 255,
+            "title": "Product Name",
             "description": "产品名称"
           },
           "product_brand": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Brand",
             "description": "产品品牌"
           },
           "product_spec": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Spec",
             "description": "产品规格"
           },
           "pn_code": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pn Code",
             "description": "PN码"
           },
           "material_code": {
-            "type": "string",
-            "maxLength": 128,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material Code",
             "description": "物料编码"
           },
           "serial_number": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Number",
             "description": "序列号"
           },
           "applicable_device_type": {
-            "type": "string",
-            "maxLength": 64,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Type",
             "description": "适用设备类型"
           },
           "applicable_device_model": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Model",
             "description": "适用设备型号"
           },
           "purchase_order_no": {
-            "type": "string",
-            "maxLength": 128,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purchase Order No",
             "description": "采购单号"
           },
           "inbound_qty": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Qty",
             "description": "入库数量"
           },
           "unit": {
-            "type": "string",
-            "maxLength": 32,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
             "description": "单位"
           },
           "inbound_room": {
-            "type": "string",
-            "maxLength": 128,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Room",
             "description": "入库机房"
           },
           "storage_location": {
-            "type": "string",
-            "maxLength": 255,
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Location",
             "description": "存放位置"
           },
           "product_description": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Description",
             "description": "产品描述"
-          },
-          "remark": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "备注"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time",
-            "description": "创建时间"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time",
-            "description": "更新时间"
-          },
-          "create_timestamp": {
-            "type": "integer",
-            "description": "创建时间戳"
-          },
-          "update_timestamp": {
-            "type": "integer",
-            "description": "更新时间戳"
-          },
-          "is_deleted": {
-            "type": "integer",
-            "description": "逻辑删除标识"
-          },
-          "status": {
-            "type": "integer",
-            "description": "状态"
           }
         },
-        "required": ["product_name"]
-      },
-      "StockOutboundRecord": {
         "type": "object",
-        "description": "库存出库记录",
+        "required": [
+          "product_name"
+        ],
+        "title": "StockInboundCreate"
+      },
+      "StockInboundDelete": {
         "properties": {
           "id": {
             "type": "integer",
-            "description": "ID"
-          },
-          "outbound_date": {
-            "type": "string",
-            "format": "date",
-            "description": "领用日期",
-            "example": "2026-03-30"
-          },
-          "product_serial_number": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "产品序列号"
-          },
-          "product_name": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "产品名称"
-          },
-          "product_brand": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "产品品牌"
-          },
-          "product_spec": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "产品规格"
-          },
-          "pn_code": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "PN码"
-          },
-          "material_code": {
-            "type": "string",
-            "maxLength": 128,
-            "description": "物料编码"
-          },
-          "outbound_qty": {
-            "type": "integer",
-            "description": "领用数量"
-          },
-          "usage_purpose": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "用途"
-          },
-          "target_device_serial_number": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "用于设备序列号"
-          },
-          "target_room": {
-            "type": "string",
-            "maxLength": 128,
-            "description": "用于机房"
-          },
-          "target_device_location": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "用于设备位置"
-          },
-          "owner_org": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "设备归属用户单位"
+            "title": "Id",
+            "description": "需要删除的数据ID"
           },
           "remark": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "备注"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark",
+            "description": "备注",
+            "examples": [
+              ""
+            ]
           },
-          "create_time": {
-            "type": "string",
-            "format": "date-time",
-            "description": "创建时间"
+          "modifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifier",
+            "description": "更新人(不需要传,从鉴权获取)"
           },
-          "update_time": {
-            "type": "string",
-            "format": "date-time",
-            "description": "更新时间"
-          },
-          "create_timestamp": {
-            "type": "integer",
-            "description": "创建时间戳"
-          },
-          "update_timestamp": {
-            "type": "integer",
-            "description": "更新时间戳"
-          },
-          "is_deleted": {
-            "type": "integer",
-            "description": "逻辑删除标识"
-          },
-          "status": {
-            "type": "integer",
-            "description": "状态"
+          "modifier_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifier Id",
+            "description": "更新人ID(不需要传,从鉴权获取)"
           }
         },
-        "required": ["product_name"]
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "StockInboundDelete"
       },
       "StockInboundPageQuery": {
-        "type": "object",
-        "description": "库存入库分页查询条件",
         "properties": {
           "page": {
             "type": "integer",
-            "minimum": 1,
-            "default": 1,
-            "description": "页码"
+            "minimum": 1.0,
+            "title": "Page",
+            "description": "页码",
+            "default": 1
           },
           "size": {
             "type": "integer",
-            "minimum": 1,
-            "maximum": 200,
-            "default": 20,
-            "description": "每页数量"
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Size",
+            "description": "每页数量",
+            "default": 20
           },
           "keyword": {
-            "type": "string",
-            "description": "关键词搜索（模糊匹配多个字段）"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyword",
+            "description": "全局关键字"
           },
           "major_category": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Major Category",
             "description": "大类"
           },
           "product_type": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type",
             "description": "产品类型"
           },
           "product_name": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name",
             "description": "产品名称"
           },
           "product_brand": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Brand",
             "description": "产品品牌"
           },
           "product_spec": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Spec",
             "description": "产品规格"
           },
           "pn_code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pn Code",
             "description": "PN码"
           },
           "material_code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material Code",
             "description": "物料编码"
           },
           "serial_number": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Number",
             "description": "序列号"
           },
           "applicable_device_type": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Type",
             "description": "适用设备类型"
           },
           "applicable_device_model": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Model",
             "description": "适用设备型号"
           },
           "purchase_order_no": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purchase Order No",
             "description": "采购单号"
           },
           "inbound_room": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Room",
             "description": "入库机房"
           },
           "storage_location": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Location",
             "description": "存放位置"
           }
-        }
-      },
-      "StockInboundCreate": {
+        },
         "type": "object",
-        "description": "创建库存入库记录",
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "inbound_date": {
-                "type": "string",
-                "format": "date",
-                "description": "入库日期"
-              },
-              "major_category": {
-                "type": "string",
-                "maxLength": 64,
-                "description": "大类"
-              },
-              "product_type": {
-                "type": "string",
-                "maxLength": 64,
-                "description": "产品类型"
-              },
-              "product_name": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品名称"
-              },
-              "product_brand": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品品牌"
-              },
-              "product_spec": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品规格"
-              },
-              "pn_code": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "PN码"
-              },
-              "material_code": {
-                "type": "string",
-                "maxLength": 128,
-                "description": "物料编码"
-              },
-              "serial_number": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "序列号"
-              },
-              "applicable_device_type": {
-                "type": "string",
-                "maxLength": 64,
-                "description": "适用设备类型"
-              },
-              "applicable_device_model": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "适用设备型号"
-              },
-              "purchase_order_no": {
-                "type": "string",
-                "maxLength": 128,
-                "description": "采购单号"
-              },
-              "inbound_qty": {
-                "type": "integer",
-                "description": "入库数量"
-              },
-              "unit": {
-                "type": "string",
-                "maxLength": 32,
-                "description": "单位"
-              },
-              "inbound_room": {
-                "type": "string",
-                "maxLength": 128,
-                "description": "入库机房"
-              },
-              "storage_location": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "存放位置"
-              },
-              "product_description": {
-                "type": "string",
-                "description": "产品描述"
-              },
-              "remark": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "备注"
-              }
-            },
-            "required": ["product_name"]
-          }
-        ]
+        "title": "StockInboundPageQuery"
       },
       "StockInboundUpdate": {
-        "type": "object",
-        "description": "更新库存入库记录",
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "记录ID"
-              }
-            },
-            "required": ["id"]
-          },
-          {
-            "$ref": "#/components/schemas/StockInboundCreate"
-          }
-        ]
-      },
-      "StockInboundDelete": {
-        "type": "object",
-        "description": "删除库存入库记录",
         "properties": {
           "id": {
-            "type": "integer",
-            "description": "记录ID"
-          }
-        },
-        "required": ["id"]
-      },
-      "StockOutboundPageQuery": {
-        "type": "object",
-        "description": "库存出库分页查询条件",
-        "properties": {
-          "page": {
-            "type": "integer",
-            "minimum": 1,
-            "default": 1,
-            "description": "页码"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "需要编辑的数据ID",
+            "examples": [
+              1
+            ]
           },
-          "size": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 200,
-            "default": 20,
-            "description": "每页数量"
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark",
+            "description": "备注",
+            "examples": [
+              ""
+            ]
           },
-          "keyword": {
-            "type": "string",
-            "description": "关键词搜索（模糊匹配多个字段）"
+          "modifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifier",
+            "description": "更新人(不需要传,从鉴权获取)"
           },
-          "product_serial_number": {
-            "type": "string",
-            "description": "产品序列号"
+          "modifier_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifier Id",
+            "description": "更新人ID(不需要传,从鉴权获取)"
+          },
+          "inbound_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Date",
+            "description": "入库日期"
+          },
+          "major_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Major Category",
+            "description": "大类"
+          },
+          "product_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Type",
+            "description": "产品类型"
           },
           "product_name": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name",
             "description": "产品名称"
           },
           "product_brand": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Brand",
             "description": "产品品牌"
           },
           "product_spec": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Spec",
             "description": "产品规格"
           },
           "pn_code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pn Code",
             "description": "PN码"
           },
           "material_code": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material Code",
             "description": "物料编码"
           },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Number",
+            "description": "序列号"
+          },
+          "applicable_device_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Type",
+            "description": "适用设备类型"
+          },
+          "applicable_device_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicable Device Model",
+            "description": "适用设备型号"
+          },
+          "purchase_order_no": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purchase Order No",
+            "description": "采购单号"
+          },
+          "inbound_qty": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Qty",
+            "description": "入库数量"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
+            "description": "单位"
+          },
+          "inbound_room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inbound Room",
+            "description": "入库机房"
+          },
+          "storage_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Location",
+            "description": "存放位置"
+          },
+          "product_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Description",
+            "description": "产品描述"
+          }
+        },
+        "type": "object",
+        "title": "StockInboundUpdate"
+      },
+      "StockOutboundCreateFromInbound": {
+        "properties": {
+          "remark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remark",
+            "description": "备注",
+            "examples": [
+              ""
+            ]
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator",
+            "description": "创建人(不需要传,从鉴权获取)"
+          },
+          "creator_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Id",
+            "description": "创建人ID(不需要传,从鉴权获取)"
+          },
+          "inbound_record_id": {
+            "type": "integer",
+            "title": "Inbound Record Id",
+            "description": "入库记录ID"
+          },
+          "outbound_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outbound Date",
+            "description": "领用日期"
+          },
+          "outbound_qty": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Outbound Qty",
+            "description": "领用数量"
+          },
           "usage_purpose": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Purpose",
             "description": "用途"
           },
           "target_device_serial_number": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Device Serial Number",
             "description": "用于设备序列号"
           },
           "target_room": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Room",
             "description": "用于机房"
           },
           "target_device_location": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Device Location",
             "description": "用于设备位置"
           },
           "owner_org": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Org",
             "description": "设备归属用户单位"
           }
-        }
-      },
-      "StockOutboundCreate": {
+        },
         "type": "object",
-        "description": "创建库存出库记录",
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "outbound_date": {
-                "type": "string",
-                "format": "date",
-                "description": "领用日期"
-              },
-              "product_serial_number": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品序列号"
-              },
-              "product_name": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品名称"
-              },
-              "product_brand": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品品牌"
-              },
-              "product_spec": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "产品规格"
-              },
-              "pn_code": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "PN码"
-              },
-              "material_code": {
-                "type": "string",
-                "maxLength": 128,
-                "description": "物料编码"
-              },
-              "outbound_qty": {
-                "type": "integer",
-                "description": "领用数量"
-              },
-              "usage_purpose": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "用途"
-              },
-              "target_device_serial_number": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "用于设备序列号"
-              },
-              "target_room": {
-                "type": "string",
-                "maxLength": 128,
-                "description": "用于机房"
-              },
-              "target_device_location": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "用于设备位置"
-              },
-              "owner_org": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "设备归属用户单位"
-              },
-              "remark": {
-                "type": "string",
-                "maxLength": 255,
-                "description": "备注"
-              }
-            },
-            "required": ["product_name"]
-          }
-        ]
+        "required": [
+          "inbound_record_id",
+          "outbound_qty"
+        ],
+        "title": "StockOutboundCreateFromInbound"
       },
-      "StockOutboundUpdate": {
-        "type": "object",
-        "description": "更新库存出库记录",
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "description": "记录ID"
-              }
-            },
-            "required": ["id"]
-          },
-          {
-            "$ref": "#/components/schemas/StockOutboundCreate"
-          }
-        ]
-      },
-      "StockOutboundDelete": {
-        "type": "object",
-        "description": "删除库存出库记录",
+      "StockOutboundPageQuery": {
         "properties": {
-          "id": {
+          "page": {
             "type": "integer",
-            "description": "记录ID"
+            "minimum": 1.0,
+            "title": "Page",
+            "description": "页码",
+            "default": 1
+          },
+          "size": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Size",
+            "description": "每页数量",
+            "default": 20
+          },
+          "keyword": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyword",
+            "description": "全局关键字"
+          },
+          "product_serial_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Serial Number",
+            "description": "产品序列号"
+          },
+          "product_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Name",
+            "description": "产品名称"
+          },
+          "product_brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Brand",
+            "description": "产品品牌"
+          },
+          "product_spec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Spec",
+            "description": "产品规格"
+          },
+          "pn_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pn Code",
+            "description": "PN码"
+          },
+          "material_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material Code",
+            "description": "物料编码"
+          },
+          "usage_purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Purpose",
+            "description": "用途"
+          },
+          "target_device_serial_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Device Serial Number",
+            "description": "用于设备序列号"
+          },
+          "target_room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Room",
+            "description": "用于机房"
+          },
+          "target_device_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Device Location",
+            "description": "用于设备位置"
+          },
+          "owner_org": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Org",
+            "description": "设备归属用户单位"
           }
         },
-        "required": ["id"]
+        "type": "object",
+        "title": "StockOutboundPageQuery"
       },
-      "ApiResponse_StockInbound": {
-        "allOf": [
-          {
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
             "type": "object",
-            "properties": {
-              "code": {
-                "type": "integer",
-                "example": 201
-              },
-              "message": {
-                "type": "string",
-                "example": "创建成功"
-              },
-              "data": {
-                "$ref": "#/components/schemas/StockInboundRecord"
-              }
-            }
+            "title": "Context"
           }
-        ]
-      },
-      "ApiResponse_StockOutbound": {
-        "allOf": [
-          {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "integer",
-                "example": 201
-              },
-              "message": {
-                "type": "string",
-                "example": "创建成功"
-              },
-              "data": {
-                "$ref": "#/components/schemas/StockOutboundRecord"
-              }
-            }
-          }
-        ]
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       }
     }
   }

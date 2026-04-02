@@ -255,14 +255,18 @@ const StockManagement: React.FC = () => {
       fixed: 'right' as const,
       render: (_: any, record: StockItem) => (
         <Space size="middle">
-          <AddOutbound content={(
-            <Button
-              type='link'
-              className={styles.actionBtn}
-            >
-              出库
-            </Button>
-          )}/>
+          <AddOutbound
+            stockId={record.id}
+            isMock={isMock}
+            content={(
+              <Button
+                type='link'
+                className={styles.actionBtn}
+              >
+                出库
+              </Button>
+            )}
+          />
           <Button
             type="link"
             className={styles.actionBtn}

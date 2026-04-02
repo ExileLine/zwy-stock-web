@@ -27,6 +27,8 @@ export interface StockItem {
 
 export interface OutboundItem {
   id: string;
+  inboundRecordId?: string;  // 关联的入库记录ID
+  inboundRecord?: StockItem;  // 关联的入库记录详情（用于显示）
   date: string;
   serialNumber: string;
   productName: string;

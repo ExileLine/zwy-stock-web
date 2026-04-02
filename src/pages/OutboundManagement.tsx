@@ -17,12 +17,14 @@ import {
   Popconfirm,
   Row,
   Col,
+  Select,
+  Descriptions,
 } from 'antd';
 import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
-import { OutboundItem } from '../types';
-import { outboundService, OutboundPageQuery } from '../services/api';
+import { OutboundItem, StockItem } from '../types';
+import { outboundService, OutboundPageQuery, stockService, OutboundCreateParams } from '../services/api';
 import { useMock } from '../context/MockContext';
 
 const useStyles = createStyles(({ token, css }) => ({
@@ -69,6 +71,12 @@ const useStyles = createStyles(({ token, css }) => ({
   addBtn: css`
     border-radius: 4px;
   `,
+  productInfo: css`
+    background: #f5f5f5;
+    padding: 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  `,
 }));
 
 const OutboundManagement: React.FC = () => {
@@ -80,6 +88,8 @@ const OutboundManagement: React.FC = () => {
   const [data, setData] = useState<OutboundItem[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [stockList, setStockList] = useState<StockItem[]>([]);
+  const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
 
   // 分页状态
   const [pagination, setPagination] = useState({
@@ -93,7 +103,6 @@ const OutboundManagement: React.FC = () => {
     try {
       const values = form.getFieldsValue();
 
-      // 构建查询参数
       const query: OutboundPageQuery = {
         page,
         size,
@@ -111,7 +120,6 @@ const OutboundManagement: React.FC = () => {
         owner_org: values.department,
       };
 
-      // 移除空值
       Object.keys(query).forEach((key) => {
         if (query[key as keyof OutboundPageQuery] === undefined || query[key as keyof OutboundPageQuery] === '') {
           delete query[key as keyof OutboundPageQuery];
@@ -134,9 +142,20 @@ const OutboundManagement: React.FC = () => {
     }
   }, [isMock, form]);
 
+  // 加载库存列表用于选择
+  const fetchStockList = useCallback(async () => {
+    try {
+      const result = await stockService.getList(isMock, { page: 1, size: 1000 });
+      setStockList(result.records);
+    } catch (error) {
+      console.error('获取库存列表失败:', error);
+    }
+  }, [isMock]);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchStockList();
+  }, [fetchData, fetchStockList]);
 
   const handleSearch = () => {
     fetchData(1, pagination.pageSize);
@@ -153,18 +172,18 @@ const OutboundManagement: React.FC = () => {
 
   const handleAdd = () => {
     setEditingId(null);
+    setSelectedStock(null);
     modalForm.resetFields();
-    modalForm.setFieldsValue({ date: dayjs(), quantity: 1 });
+    modalForm.setFieldsValue({
+      date: dayjs(),
+      quantity: 1,
+    });
     setModalVisible(true);
   };
 
   const handleEdit = (record: OutboundItem) => {
-    setEditingId(record.id);
-    modalForm.setFieldsValue({
-      ...record,
-      date: dayjs(record.date),
-    });
-    setModalVisible(true);
+    // 出库记录不支持编辑（基于入库记录创建）
+    message.warning('出库记录不支持编辑，请删除后重新创建');
   };
 
   const handleDelete = async (id: string) => {
@@ -173,30 +192,44 @@ const OutboundManagement: React.FC = () => {
       message.success('删除成功');
       fetchData(pagination.current, pagination.pageSize);
     } catch (error) {
-      message.error('删除失败');
+      message.error(error instanceof Error ? error.message : '删除失败');
     }
   };
 
   const handleModalOk = async () => {
     try {
       const values = await modalForm.validateFields();
-      const formattedValues = {
-        ...values,
-        date: values.date.format('YYYY-MM-DD'),
+
+      if (!values.inboundRecordId) {
+        message.error('请选择入库记录');
+        return;
+      }
+
+      const params: OutboundCreateParams = {
+        inbound_record_id: parseInt(values.inboundRecordId),
+        outbound_qty: values.quantity,
+        outbound_date: values.date?.format('YYYY-MM-DD'),
+        usage_purpose: values.purpose,
+        target_device_serial_number: values.appliedDeviceSerial,
+        target_room: values.warehouse,
+        target_device_location: values.location,
+        owner_org: values.department,
+        remark: values.remark,
       };
 
-      if (editingId) {
-        await outboundService.update(isMock, editingId, formattedValues);
-        message.success('更新成功');
-      } else {
-        await outboundService.add(isMock, formattedValues);
-        message.success('新增成功');
-      }
+      await outboundService.add(isMock, params);
+      message.success('出库成功');
       setModalVisible(false);
       fetchData(pagination.current, pagination.pageSize);
+      fetchStockList(); // 刷新库存列表
     } catch (error) {
       console.error('Validation failed:', error);
     }
+  };
+
+  const handleStockSelect = (stockId: string) => {
+    const stock = stockList.find((s) => s.id === stockId);
+    setSelectedStock(stock || null);
   };
 
   const columns = [
@@ -246,17 +279,10 @@ const OutboundManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 100,
       fixed: 'right' as const,
       render: (_: any, record: OutboundItem) => (
         <Space size="middle">
-          <Button
-            type="link"
-            className={styles.actionBtn}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
           <Popconfirm
             title="确定删除吗？"
             onConfirm={() => handleDelete(record.id)}
@@ -349,7 +375,7 @@ const OutboundManagement: React.FC = () => {
       />
 
       <Modal
-        title={editingId ? '编辑出库' : '新增出库'}
+        title="新增出库"
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
@@ -359,43 +385,64 @@ const OutboundManagement: React.FC = () => {
       >
         <Form form={modalForm} layout="vertical">
           <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="inboundRecordId"
+                label="选择入库记录"
+                rules={[{ required: true, message: '请选择入库记录' }]}
+              >
+                <Select
+                  placeholder="请选择入库记录"
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={handleStockSelect}
+                  options={stockList.map((stock) => ({
+                    value: stock.id,
+                    label: `${stock.productName} - ${stock.materialCode} - ${stock.serialNumber} (库存: ${stock.quantity}${stock.unit})`,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {selectedStock && (
+            <div className={styles.productInfo}>
+              <Descriptions title="产品信息" column={3} size="small" bordered>
+                <Descriptions.Item label="产品名称">{selectedStock.productName}</Descriptions.Item>
+                <Descriptions.Item label="品牌">{selectedStock.brand}</Descriptions.Item>
+                <Descriptions.Item label="规格">{selectedStock.spec}</Descriptions.Item>
+                <Descriptions.Item label="物料编码">{selectedStock.materialCode}</Descriptions.Item>
+                <Descriptions.Item label="序列号">{selectedStock.serialNumber}</Descriptions.Item>
+                <Descriptions.Item label="库存数量">{selectedStock.quantity} {selectedStock.unit}</Descriptions.Item>
+                <Descriptions.Item label="入库机房" span={3}>{selectedStock.warehouse}</Descriptions.Item>
+              </Descriptions>
+            </div>
+          )}
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="date" label="领用日期" rules={[{ required: true }]}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="serialNumber" label="产品序列号" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="productName" label="产品名称" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="brand" label="产品品牌">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="spec" label="产品规格">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="pnCode" label="PN码">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="materialCode" label="物料编码">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="quantity" label="领用数量" rules={[{ required: true }]}>
+              <Form.Item
+                name="quantity"
+                label="领用数量"
+                rules={[
+                  { required: true, message: '请输入领用数量' },
+                  {
+                    validator: (_, value) => {
+                      if (selectedStock && value > selectedStock.quantity) {
+                        return Promise.reject(new Error('领用数量不能超过库存数量'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
+              >
                 <InputNumber min={1} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
@@ -436,47 +483,92 @@ const OutboundManagement: React.FC = () => {
 
 export default OutboundManagement;
 
-
 export type AddOutboundProps = {
-  editingId?: string,
-  isMock?: boolean,
-  content?: any
+  editingId?: string;
+  isMock?: boolean;
+  content?: any;
+  stockId?: string;  // 新增：直接指定入库记录ID
 }
 
 export const AddOutbound = (props: AddOutboundProps) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const editingId = props.editingId || undefined;
   const isMock = props.isMock || false;
   const [modalForm] = Form.useForm();
+  const [stockList, setStockList] = useState<StockItem[]>([]);
+  const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
+
+  // 加载库存列表用于选择
+  const fetchStockList = useCallback(async () => {
+    try {
+      const result = await stockService.getList(isMock, { page: 1, size: 1000 });
+      setStockList(result.records);
+
+      // 如果指定了 stockId，预选该记录
+      if (props.stockId) {
+        const stock = result.records.find((s) => s.id === props.stockId);
+        if (stock) {
+          setSelectedStock(stock);
+          modalForm.setFieldsValue({ inboundRecordId: stock.id });
+        }
+      }
+    } catch (error) {
+      console.error('获取库存列表失败:', error);
+    }
+  }, [isMock, props.stockId]);
+
+  useEffect(() => {
+    if (modalVisible) {
+      fetchStockList();
+      modalForm.setFieldsValue({
+        date: dayjs(),
+        quantity: 1,
+      });
+    }
+  }, [modalVisible, fetchStockList]);
 
   const handleModalOk = async () => {
     try {
       const values = await modalForm.validateFields();
-      const formattedValues = {
-        ...values,
-        date: values.date.format('YYYY-MM-DD'),
+
+      if (!values.inboundRecordId) {
+        message.error('请选择入库记录');
+        return;
+      }
+
+      const params: OutboundCreateParams = {
+        inbound_record_id: parseInt(values.inboundRecordId),
+        outbound_qty: values.quantity,
+        outbound_date: values.date?.format('YYYY-MM-DD'),
+        usage_purpose: values.purpose,
+        target_device_serial_number: values.appliedDeviceSerial,
+        target_room: values.warehouse,
+        target_device_location: values.location,
+        owner_org: values.department,
+        remark: values.remark,
       };
 
-      if (editingId) {
-        await outboundService.update(isMock, editingId, formattedValues);
-        message.success('更新成功');
-      } else {
-        await outboundService.add(isMock, formattedValues);
-        message.success('新增成功');
-      }
+      await outboundService.add(isMock, params);
+      message.success('出库成功');
       setModalVisible(false);
+      // 刷新页面数据（通过事件或回调）
+      window.location.reload();
     } catch (error) {
       console.error('Validation failed:', error);
     }
   };
 
+  const handleStockSelect = (stockId: string) => {
+    const stock = stockList.find((s) => s.id === stockId);
+    setSelectedStock(stock || null);
+  };
+
   return (
     <>
-      <div onClick={ () => setModalVisible(true)}>
+      <div onClick={() => setModalVisible(true)}>
         {props.content}
       </div>
       <Modal
-        title={editingId ? '编辑出库' : '新增出库'}
+        title="新增出库"
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
@@ -486,43 +578,65 @@ export const AddOutbound = (props: AddOutboundProps) => {
       >
         <Form form={modalForm} layout="vertical">
           <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="inboundRecordId"
+                label="选择入库记录"
+                rules={[{ required: true, message: '请选择入库记录' }]}
+              >
+                <Select
+                  placeholder="请选择入库记录"
+                  showSearch
+                  disabled={!!props.stockId}  // 如果指定了 stockId，禁用选择
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  onChange={handleStockSelect}
+                  options={stockList.map((stock) => ({
+                    value: stock.id,
+                    label: `${stock.productName} - ${stock.materialCode} - ${stock.serialNumber} (库存: ${stock.quantity}${stock.unit})`,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {selectedStock && (
+            <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '4px', marginBottom: '16px' }}>
+              <Descriptions title="产品信息" column={3} size="small" bordered>
+                <Descriptions.Item label="产品名称">{selectedStock.productName}</Descriptions.Item>
+                <Descriptions.Item label="品牌">{selectedStock.brand}</Descriptions.Item>
+                <Descriptions.Item label="规格">{selectedStock.spec}</Descriptions.Item>
+                <Descriptions.Item label="物料编码">{selectedStock.materialCode}</Descriptions.Item>
+                <Descriptions.Item label="序列号">{selectedStock.serialNumber}</Descriptions.Item>
+                <Descriptions.Item label="库存数量">{selectedStock.quantity} {selectedStock.unit}</Descriptions.Item>
+                <Descriptions.Item label="入库机房" span={3}>{selectedStock.warehouse}</Descriptions.Item>
+              </Descriptions>
+            </div>
+          )}
+
+          <Row gutter={16}>
             <Col span={8}>
               <Form.Item name="date" label="领用日期" rules={[{ required: true }]}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="serialNumber" label="产品序列号" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="productName" label="产品名称" rules={[{ required: true }]}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="brand" label="产品品牌">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="spec" label="产品规格">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="pnCode" label="PN码">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="materialCode" label="物料编码">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="quantity" label="领用数量" rules={[{ required: true }]}>
+              <Form.Item
+                name="quantity"
+                label="领用数量"
+                rules={[
+                  { required: true, message: '请输入领用数量' },
+                  {
+                    validator: (_, value) => {
+                      if (selectedStock && value > selectedStock.quantity) {
+                        return Promise.reject(new Error('领用数量不能超过库存数量'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
+              >
                 <InputNumber min={1} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
@@ -558,5 +672,5 @@ export const AddOutbound = (props: AddOutboundProps) => {
         </Form>
       </Modal>
     </>
-  )
-}
+  );
+};
