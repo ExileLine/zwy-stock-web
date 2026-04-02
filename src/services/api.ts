@@ -5,6 +5,7 @@
 
 import { StockItem, OutboundItem } from '../types';
 import { mockStockData, mockOutboundData } from './mockData';
+import { API_ENDPOINTS } from '../config';
 
 // In-memory mock storage
 let currentStockData = [...mockStockData];
@@ -18,7 +19,7 @@ export const stockService = {
       });
     }
     // Real API call would go here
-    const response = await fetch('/api/stock');
+    const response = await fetch(API_ENDPOINTS.STOCK);
     return response.json();
   },
 
@@ -28,7 +29,7 @@ export const stockService = {
       currentStockData = [newItem, ...currentStockData];
       return newItem;
     }
-    const response = await fetch('/api/stock', {
+    const response = await fetch(API_ENDPOINTS.STOCK, {
       method: 'POST',
       body: JSON.stringify(item),
     });
@@ -44,7 +45,7 @@ export const stockService = {
       }
       throw new Error('Item not found');
     }
-    const response = await fetch(`/api/stock/${id}`, {
+    const response = await fetch(`${API_ENDPOINTS.STOCK}/${id}`, {
       method: 'PUT',
       body: JSON.stringify(item),
     });
@@ -56,7 +57,7 @@ export const stockService = {
       currentStockData = currentStockData.filter((i) => i.id !== id);
       return;
     }
-    await fetch(`/api/stock/${id}`, { method: 'DELETE' });
+    await fetch(`${API_ENDPOINTS.STOCK}/${id}`, { method: 'DELETE' });
   },
 };
 
@@ -67,7 +68,7 @@ export const outboundService = {
         setTimeout(() => resolve([...currentOutboundData]), 300);
       });
     }
-    const response = await fetch('/api/outbound');
+    const response = await fetch(API_ENDPOINTS.OUTBOUND);
     return response.json();
   },
 
@@ -77,7 +78,7 @@ export const outboundService = {
       currentOutboundData = [newItem, ...currentOutboundData];
       return newItem;
     }
-    const response = await fetch('/api/outbound', {
+    const response = await fetch(API_ENDPOINTS.OUTBOUND, {
       method: 'POST',
       body: JSON.stringify(item),
     });
@@ -93,7 +94,7 @@ export const outboundService = {
       }
       throw new Error('Item not found');
     }
-    const response = await fetch(`/api/outbound/${id}`, {
+    const response = await fetch(`${API_ENDPOINTS.OUTBOUND}/${id}`, {
       method: 'PUT',
       body: JSON.stringify(item),
     });
@@ -105,6 +106,6 @@ export const outboundService = {
       currentOutboundData = currentOutboundData.filter((i) => i.id !== id);
       return;
     }
-    await fetch(`/api/outbound/${id}`, { method: 'DELETE' });
+    await fetch(`${API_ENDPOINTS.OUTBOUND}/${id}`, { method: 'DELETE' });
   },
 };
