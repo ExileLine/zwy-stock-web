@@ -25,6 +25,7 @@ import dayjs from 'dayjs';
 import { StockItem } from '../types';
 import { stockService } from '../services/api';
 import { useMock } from '../context/MockContext';
+import { AddOutbound } from './OutboundManagement';
 
 const useStyles = createStyles(({ token, css }) => ({
   searchForm: css`
@@ -86,6 +87,7 @@ const StockManagement: React.FC = () => {
     setLoading(true);
     try {
       const result = await stockService.getList(isMock);
+      console.log(result);
       setData(result);
     } catch (error) {
       message.error('获取数据失败');
@@ -224,10 +226,18 @@ const StockManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 120,
+      width: 180,
       fixed: 'right' as const,
       render: (_: any, record: StockItem) => (
         <Space size="middle">
+          <AddOutbound content={(
+            <Button
+              type='link'
+              className={styles.actionBtn}
+            >
+              出库
+            </Button>
+          )}/>
           <Button
             type="link"
             className={styles.actionBtn}
@@ -314,8 +324,8 @@ const StockManagement: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        className={styles.table}
-        scroll={{ x: 1500 }}
+        // className={styles.table}
+        scroll={{ x: 'max-content' }}
         pagination={{ 
           pageSize: 10,
           showSizeChanger: false,

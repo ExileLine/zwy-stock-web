@@ -75,10 +75,10 @@ const OutboundManagement: React.FC = () => {
   const { styles } = useStyles();
   const { isMock } = useMock();
   const [form] = Form.useForm();
-  const [modalForm] = Form.useForm();
+  
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<OutboundItem[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
+  
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const fetchData = async () => {
@@ -128,21 +128,21 @@ const OutboundManagement: React.FC = () => {
     fetchData();
   };
 
-  const handleAdd = () => {
-    setEditingId(null);
-    modalForm.resetFields();
-    modalForm.setFieldsValue({ date: dayjs(), quantity: 1 });
-    setModalVisible(true);
-  };
+  // const handleAdd = () => {
+  //   setEditingId(null);
+  //   modalForm.resetFields();
+  //   modalForm.setFieldsValue({ date: dayjs(), quantity: 1 });
+  //   setModalVisible(true);
+  // };
 
-  const handleEdit = (record: OutboundItem) => {
-    setEditingId(record.id);
-    modalForm.setFieldsValue({
-      ...record,
-      date: dayjs(record.date),
-    });
-    setModalVisible(true);
-  };
+  // const handleEdit = (record: OutboundItem) => {
+  //   setEditingId(record.id);
+  //   modalForm.setFieldsValue({
+  //     ...record,
+  //     date: dayjs(record.date),
+  //   });
+  //   setModalVisible(true);
+  // };
 
   const handleDelete = async (id: string) => {
     try {
@@ -151,28 +151,6 @@ const OutboundManagement: React.FC = () => {
       fetchData();
     } catch (error) {
       message.error('删除失败');
-    }
-  };
-
-  const handleModalOk = async () => {
-    try {
-      const values = await modalForm.validateFields();
-      const formattedValues = {
-        ...values,
-        date: values.date.format('YYYY-MM-DD'),
-      };
-
-      if (editingId) {
-        await outboundService.update(isMock, editingId, formattedValues);
-        message.success('更新成功');
-      } else {
-        await outboundService.add(isMock, formattedValues);
-        message.success('新增成功');
-      }
-      setModalVisible(false);
-      fetchData();
-    } catch (error) {
-      console.error('Validation failed:', error);
     }
   };
 
@@ -220,33 +198,33 @@ const OutboundManagement: React.FC = () => {
     { title: '用途', dataIndex: 'purpose', key: 'purpose', width: 150 },
     { title: '用于机房', dataIndex: 'warehouse', key: 'warehouse', width: 150 },
     { title: '归属单位', dataIndex: 'department', key: 'department', width: 150 },
-    {
-      title: '操作',
-      key: 'action',
-      width: 120,
-      fixed: 'right' as const,
-      render: (_: any, record: OutboundItem) => (
-        <Space size="middle">
-          <Button
-            type="link"
-            className={styles.actionBtn}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定删除吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button type="link" className={`${styles.actionBtn} ${styles.deleteBtn}`}>
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    // {
+    //   title: '操作',
+    //   key: 'action',
+    //   width: 120,
+    //   fixed: 'right' as const,
+    //   render: (_: any, record: OutboundItem) => (
+    //     <Space size="middle">
+    //       <Button
+    //         type="link"
+    //         className={styles.actionBtn}
+    //         onClick={() => handleEdit(record)}
+    //       >
+    //         编辑
+    //       </Button>
+    //       <Popconfirm
+    //         title="确定删除吗？"
+    //         onConfirm={() => handleDelete(record.id)}
+    //         okText="确定"
+    //         cancelText="取消"
+    //       >
+    //         <Button type="link" className={`${styles.actionBtn} ${styles.deleteBtn}`}>
+    //           删除
+    //         </Button>
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (
@@ -295,7 +273,7 @@ const OutboundManagement: React.FC = () => {
               </Button>
             </Space>
           </Col>
-          <Col>
+          {/* <Col>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -304,7 +282,7 @@ const OutboundManagement: React.FC = () => {
             >
               新增出库
             </Button>
-          </Col>
+          </Col> */}
         </Row>
       </Form>
 
@@ -313,8 +291,8 @@ const OutboundManagement: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        className={styles.table}
-        scroll={{ x: 1500 }}
+        // className={styles.table}
+        scroll={{ x: 'max-content' }}
         pagination={{ 
           pageSize: 10,
           showSizeChanger: false,
@@ -322,6 +300,51 @@ const OutboundManagement: React.FC = () => {
         }}
       />
 
+    </div>
+  );
+};
+
+export default OutboundManagement;
+
+
+export type AddOutboundProps = {
+  editingId?: string,
+  isMock?: boolean,
+  content?: any
+}
+
+export const AddOutbound = (props: AddOutboundProps) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const editingId = props.editingId || undefined;
+  const isMock = props.isMock || false;
+  const [modalForm] = Form.useForm();
+
+  const handleModalOk = async () => {
+    try {
+      const values = await modalForm.validateFields();
+      const formattedValues = {
+        ...values,
+        date: values.date.format('YYYY-MM-DD'),
+      };
+
+      if (editingId) {
+        await outboundService.update(isMock, editingId, formattedValues);
+        message.success('更新成功');
+      } else {
+        await outboundService.add(isMock, formattedValues);
+        message.success('新增成功');
+      }
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Validation failed:', error);
+    }
+  };
+
+  return (
+    <>
+      <div onClick={ () => setModalVisible(true)}>
+        {props.content}
+      </div>
       <Modal
         title={editingId ? '编辑出库' : '新增出库'}
         open={modalVisible}
@@ -404,8 +427,6 @@ const OutboundManagement: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
-  );
-};
-
-export default OutboundManagement;
+    </>
+  )
+}
