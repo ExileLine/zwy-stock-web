@@ -212,11 +212,11 @@ const StockManagement: React.FC = () => {
     },
     {
       title: '入库日期',
-      dataIndex: 'date',
-      key: 'date',
+      dataIndex: 'inboundDate',
+      key: 'inboundDate',
       width: 120,
     },
-    { title: '大类', dataIndex: 'category', key: 'category', width: 100 },
+    { title: '大类', dataIndex: 'majorCategory', key: 'majorCategory', width: 100 },
     { title: '产品类型', dataIndex: 'productType', key: 'productType', width: 120 },
     {
       title: '产品名称',
@@ -225,8 +225,8 @@ const StockManagement: React.FC = () => {
       width: 150,
       render: (text: string) => <span style={{ fontWeight: 500, color: '#262626' }}>{text}</span>
     },
-    { title: '品牌', dataIndex: 'brand', key: 'brand', width: 100 },
-    { title: '规格', dataIndex: 'spec', key: 'spec', width: 180 },
+    { title: '品牌', dataIndex: 'productBrand', key: 'productBrand', width: 100 },
+    { title: '规格', dataIndex: 'productSpec', key: 'productSpec', width: 180 },
     {
       title: '物料编码',
       dataIndex: 'materialCode',
@@ -247,7 +247,7 @@ const StockManagement: React.FC = () => {
       render: (text: number) => <span style={{ color: '#1890ff', fontWeight: 600 }}>{text}</span>
     },
     { title: '单位', dataIndex: 'unit', key: 'unit', width: 80 },
-    { title: '入库机房', dataIndex: 'warehouse', key: 'warehouse', width: 150 },
+    { title: '入库机房', dataIndex: 'inboundRoom', key: 'inboundRoom', width: 150 },
     {
       title: '操作',
       key: 'action',
