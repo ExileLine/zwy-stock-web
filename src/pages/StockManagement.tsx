@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table,
   Form,
@@ -23,7 +23,7 @@ import { SearchOutlined, ReloadOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
 import { StockItem } from '../types';
-import { stockService } from '../services/api';
+import { stockService, StockPageQuery } from '../services/api';
 import { useMock } from '../context/MockContext';
 import { AddOutbound } from './OutboundManagement';
 
@@ -83,51 +83,76 @@ const StockManagement: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  // 分页状态
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  const fetchData = useCallback(async (page = 1, size = 10) => {
     setLoading(true);
     try {
-      const result = await stockService.getList(isMock);
-      console.log(result);
-      setData(result);
+      const values = form.getFieldsValue();
+
+      // 构建查询参数
+      const query: StockPageQuery = {
+        page,
+        size,
+        keyword: values.keyword,
+        major_category: values.category,
+        product_type: values.productType,
+        product_name: values.productName,
+        product_brand: values.brand,
+        product_spec: values.spec,
+        pn_code: values.pnCode,
+        material_code: values.materialCode,
+        serial_number: values.serialNumber,
+        applicable_device_type: values.appliedDeviceType,
+        applicable_device_model: values.appliedDeviceModel,
+        purchase_order_no: values.purchaseOrder,
+        inbound_room: values.warehouse,
+        storage_location: values.location,
+      };
+
+      // 移除空值
+      Object.keys(query).forEach((key) => {
+        if (query[key as keyof StockPageQuery] === undefined || query[key as keyof StockPageQuery] === '') {
+          delete query[key as keyof StockPageQuery];
+        }
+      });
+
+      const result = await stockService.getList(isMock, query);
+      setData(result.records);
+      setPagination((prev) => ({
+        ...prev,
+        current: page,
+        pageSize: size,
+        total: result.total,
+      }));
     } catch (error) {
       message.error('获取数据失败');
+      console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isMock, form]);
 
   useEffect(() => {
     fetchData();
-  }, [isMock]);
+  }, [fetchData]);
 
   const handleSearch = () => {
-    const values = form.getFieldsValue();
-    if (isMock) {
-      fetchData().then(() => {
-        setData((prev) =>
-          prev.filter((item) => {
-            return (
-              (!values.keyword ||
-                item.productName.includes(values.keyword) ||
-                item.brand.includes(values.keyword) ||
-                item.materialCode.includes(values.keyword)) &&
-              (!values.category || item.category.includes(values.category)) &&
-              (!values.productName || item.productName.includes(values.productName)) &&
-              (!values.materialCode || item.materialCode.includes(values.materialCode)) &&
-              (!values.serialNumber || item.serialNumber.includes(values.serialNumber)) &&
-              (!values.warehouse || item.warehouse.includes(values.warehouse))
-            );
-          })
-        );
-      });
-    } else {
-      fetchData();
-    }
+    fetchData(1, pagination.pageSize);
   };
 
   const handleReset = () => {
     form.resetFields();
-    fetchData();
+    fetchData(1, pagination.pageSize);
+  };
+
+  const handleTableChange = (paginationInfo: any) => {
+    fetchData(paginationInfo.current, paginationInfo.pageSize);
   };
 
   const handleAdd = () => {
@@ -150,7 +175,7 @@ const StockManagement: React.FC = () => {
     try {
       await stockService.delete(isMock, id);
       message.success('删除成功');
-      fetchData();
+      fetchData(pagination.current, pagination.pageSize);
     } catch (error) {
       message.error('删除失败');
     }
@@ -172,52 +197,52 @@ const StockManagement: React.FC = () => {
         message.success('新增成功');
       }
       setModalVisible(false);
-      fetchData();
+      fetchData(pagination.current, pagination.pageSize);
     } catch (error) {
       console.error('Validation failed:', error);
     }
   };
 
   const columns = [
-    { 
-      title: '序号', 
-      dataIndex: 'id', 
-      key: 'id', 
+    {
+      title: '序号',
+      dataIndex: 'id',
+      key: 'id',
       width: 70,
     },
-    { 
-      title: '入库日期', 
-      dataIndex: 'date', 
-      key: 'date', 
+    {
+      title: '入库日期',
+      dataIndex: 'date',
+      key: 'date',
       width: 120,
     },
     { title: '大类', dataIndex: 'category', key: 'category', width: 100 },
     { title: '产品类型', dataIndex: 'productType', key: 'productType', width: 120 },
-    { 
-      title: '产品名称', 
-      dataIndex: 'productName', 
-      key: 'productName', 
+    {
+      title: '产品名称',
+      dataIndex: 'productName',
+      key: 'productName',
       width: 150,
       render: (text: string) => <span style={{ fontWeight: 500, color: '#262626' }}>{text}</span>
     },
     { title: '品牌', dataIndex: 'brand', key: 'brand', width: 100 },
     { title: '规格', dataIndex: 'spec', key: 'spec', width: 180 },
-    { 
-      title: '物料编码', 
-      dataIndex: 'materialCode', 
-      key: 'materialCode', 
+    {
+      title: '物料编码',
+      dataIndex: 'materialCode',
+      key: 'materialCode',
       width: 140,
     },
-    { 
-      title: '序列号', 
-      dataIndex: 'serialNumber', 
-      key: 'serialNumber', 
+    {
+      title: '序列号',
+      dataIndex: 'serialNumber',
+      key: 'serialNumber',
       width: 140,
     },
-    { 
-      title: '数量', 
-      dataIndex: 'quantity', 
-      key: 'quantity', 
+    {
+      title: '数量',
+      dataIndex: 'quantity',
+      key: 'quantity',
       width: 80,
       render: (text: number) => <span style={{ color: '#1890ff', fontWeight: 600 }}>{text}</span>
     },
@@ -324,13 +349,16 @@ const StockManagement: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        // className={styles.table}
         scroll={{ x: 'max-content' }}
-        pagination={{ 
-          pageSize: 10,
-          showSizeChanger: false,
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          showSizeChanger: true,
+          showTotal: (total) => `共 ${total} 条`,
           position: ['bottomRight'],
         }}
+        onChange={handleTableChange}
       />
 
       <Modal
