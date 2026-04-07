@@ -45,7 +45,7 @@ async function request<T>(
   const response = await fetch(url, options);
   const result: ApiResponse<T> = await response.json();
 
-  if (result.code !== 200 && result.code !== 201) {
+  if (result.code >= 300) {
     throw new Error(result.message || '请求失败');
   }
 
