@@ -4,7 +4,9 @@
  */
 
 // API 基础地址
-export const API_BASE_URL = 'http://localhost:7777/api/v1';
+// 开发环境：使用相对路径，由 Vite 代理到后端
+// 生产环境：使用相对路径，由 nginx 代理到后端
+export const API_BASE_URL = '/api/v1';
 
 // 接口地址配置
 export const API_ENDPOINTS = {
