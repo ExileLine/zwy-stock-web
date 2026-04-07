@@ -337,7 +337,7 @@ const OutboundManagement: React.FC = () => {
               </Button>
             </Space>
           </Col>
-          <Col>
+          {/* <Col>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -346,7 +346,7 @@ const OutboundManagement: React.FC = () => {
             >
               新增出库
             </Button>
-          </Col>
+          </Col> */}
         </Row>
       </Form>
 
@@ -481,6 +481,7 @@ export type AddOutboundProps = {
   isMock?: boolean;
   content?: any;
   stockId?: string;  // 新增：直接指定入库记录ID
+  onFinish?: () => void;  // 新增：出库成功后的回调方法
 }
 
 export const AddOutbound = (props: AddOutboundProps) => {
@@ -544,7 +545,8 @@ export const AddOutbound = (props: AddOutboundProps) => {
       message.success('出库成功');
       setModalVisible(false);
       // 刷新页面数据（通过事件或回调）
-      window.location.reload();
+      props.onFinish?.();
+
     } catch (error) {
       console.error('Validation failed:', error);
     }

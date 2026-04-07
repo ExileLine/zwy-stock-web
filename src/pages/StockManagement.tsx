@@ -176,8 +176,8 @@ const StockManagement: React.FC = () => {
       await stockService.delete(isMock, id.toString());
       message.success('删除成功');
       fetchData(pagination.current, pagination.pageSize);
-    } catch (error) {
-      message.error('删除失败');
+    } catch (error:any) {
+      message.error(error?.message || '删除失败');
     }
   };
 
@@ -198,8 +198,8 @@ const StockManagement: React.FC = () => {
       }
       setModalVisible(false);
       fetchData(pagination.current, pagination.pageSize);
-    } catch (error) {
-      console.error('Validation failed:', error);
+    } catch (error:any) {
+      message.error(error?.message || '操作失败')
     }
   };
 
@@ -256,6 +256,7 @@ const StockManagement: React.FC = () => {
       render: (_: any, record: StockItem) => (
         <Space size="middle">
           <AddOutbound
+            onFinish={() => handleSearch()}
             stockId={record.id.toString()}
             isMock={isMock}
             content={(
