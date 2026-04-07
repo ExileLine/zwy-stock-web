@@ -4,13 +4,15 @@
  */
 
 import React, { useState } from 'react';
-import { Layout, Menu, Switch, Typography, Space, ConfigProvider, theme } from 'antd';
+import { Layout, Menu, Switch, Typography, ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import {
   DatabaseOutlined,
   ExportOutlined,
   GlobalOutlined,
   SafetyCertificateOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import { motion, AnimatePresence } from 'motion/react';
@@ -21,7 +23,7 @@ import OutboundManagement from './pages/OutboundManagement';
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
-const useStyles = createStyles(({ token, css }) => ({
+const useStyles = createStyles(({ css }) => ({
   layout: css`
     min-height: 100vh;
     background-color: #f4f7fa;
@@ -29,6 +31,12 @@ const useStyles = createStyles(({ token, css }) => ({
   sider: css`
     background: #fff !important;
     border-right: 1px solid #f0f0f0 !important;
+    transition: all 0.2s !important;
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
     .ant-menu {
       background: transparent !important;
       border-inline-end: none !important;
@@ -43,7 +51,7 @@ const useStyles = createStyles(({ token, css }) => ({
       color: #595959 !important;
       font-weight: 500;
       transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-      
+
       .anticon {
         font-size: 18px !important;
         transition: transform 0.3s;
@@ -67,42 +75,53 @@ const useStyles = createStyles(({ token, css }) => ({
     }
   `,
   logo: css`
-    height: 72px;
-    padding: 0 24px;
+    height: 64px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     gap: 12px;
     border-bottom: 1px solid #f0f0f0;
     margin-bottom: 8px;
+    overflow: hidden;
+    transition: all 0.2s;
     .logo-icon {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
       flex-shrink: 0;
       color: #fff;
-      font-size: 20px;
+      font-size: 18px;
     }
     .logo-text {
       display: flex;
       flex-direction: column;
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 0.2s;
       .main-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
         color: #262626;
         letter-spacing: -0.5px;
+        line-height: 1.2;
       }
       .sub-title {
-        font-size: 10px;
+        font-size: 9px;
         color: #8c8c8c;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
+        line-height: 1.2;
       }
+    }
+    &.collapsed .logo-text {
+      opacity: 0;
+      width: 0;
     }
   `,
   header: css`
@@ -113,8 +132,26 @@ const useStyles = createStyles(({ token, css }) => ({
     justify-content: space-between;
     height: 64px !important;
     box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-    z-index: 10;
     gap: 16px;
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 240px;
+    z-index: 10;
+    transition: left 0.2s !important;
+    &.collapsed {
+      left: 80px;
+    }
+  `,
+  trigger: css`
+    font-size: 18px;
+    line-height: 64px;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0 12px;
+    &:hover {
+      color: #1890ff;
+    }
   `,
   headerLeft: css`
     display: flex;
@@ -153,7 +190,6 @@ const useStyles = createStyles(({ token, css }) => ({
     align-items: center;
     gap: 6px;
     border-radius: 4px;
-    box-size: border-box;
     white-space: nowrap;
     .status-dot {
       width: 6px;
@@ -171,12 +207,20 @@ const useStyles = createStyles(({ token, css }) => ({
     white-space: nowrap;
   `,
   contentWrapper: css`
-    margin: 24px;
+    padding: 24px;
     background: #fff;
     border-radius: 4px;
-    padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    min-height: calc(100vh - 112px);
+    min-height: calc(100vh - 64px - 48px);
+  `,
+  mainLayout: css`
+    margin-left: 240px;
+    margin-top: 64px;
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.2s !important;
+    &.collapsed {
+      margin-left: 80px;
+    }
   `,
 }));
 
@@ -184,6 +228,7 @@ const AppContent: React.FC = () => {
   const { styles } = useStyles();
   const { isMock, setIsMock } = useMock();
   const [currentMenu, setCurrentMenu] = useState('stock');
+  const [collapsed, setCollapsed] = useState(false);
 
   const menuItems = [
     {
@@ -213,8 +258,13 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout className={styles.layout}>
-      <Sider width={240} className={styles.sider}>
-        <div className={styles.logo}>
+      <Sider
+        width={240}
+        collapsedWidth={80}
+        collapsed={collapsed}
+        className={styles.sider}
+      >
+        <div className={`${styles.logo} ${collapsed ? 'collapsed' : ''}`}>
           <div className="logo-icon">
             <SafetyCertificateOutlined />
           </div>
@@ -228,41 +278,35 @@ const AppContent: React.FC = () => {
           selectedKeys={[currentMenu]}
           items={menuItems}
           onClick={({ key }) => setCurrentMenu(key)}
+          inlineCollapsed={collapsed}
         />
       </Sider>
-      <Layout style={{ background: 'transparent' }}>
-        <Header className={styles.header}>
+      <Layout className={`${styles.mainLayout} ${collapsed ? 'collapsed' : ''}`}>
+        <Header className={`${styles.header} ${collapsed ? 'collapsed' : ''}`}>
           <div className={styles.headerLeft}>
+            {collapsed ? (
+              <MenuUnfoldOutlined className={styles.trigger} onClick={() => setCollapsed(!collapsed)} />
+            ) : (
+              <MenuFoldOutlined className={styles.trigger} onClick={() => setCollapsed(!collapsed)} />
+            )}
             <Title level={1} className="page-title">{pageTitle}</Title>
             <Text className="page-desc">标准化物资储备与出库监管系统</Text>
           </div>
-          {/* <div className={styles.headerRight}>
-            <div className={styles.apiInfo}>
-              <GlobalOutlined /> 接口地址: 127.0.0.1:7777
-            </div>
-            <div className={styles.mockToggle}>
-              <span>模拟数据</span>
-              <Switch 
-                checked={isMock} 
-                onChange={setIsMock} 
-                size="small"
-                style={{ backgroundColor: isMock ? '#1890ff' : undefined }}
-              />
-            </div>
-          </div> */}
         </Header>
-        <Content className={styles.contentWrapper}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentMenu}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
+        <Content style={{ padding: '24px', overflow: 'auto' }}>
+          <div className={styles.contentWrapper}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentMenu}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </Content>
       </Layout>
     </Layout>
