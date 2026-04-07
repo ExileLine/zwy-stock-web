@@ -236,7 +236,7 @@ const AppContent: React.FC = () => {
             <Title level={1} className="page-title">{pageTitle}</Title>
             <Text className="page-desc">标准化物资储备与出库监管系统</Text>
           </div>
-          <div className={styles.headerRight}>
+          {/* <div className={styles.headerRight}>
             <div className={styles.apiInfo}>
               <GlobalOutlined /> 接口地址: 127.0.0.1:7777
             </div>
@@ -249,7 +249,7 @@ const AppContent: React.FC = () => {
                 style={{ backgroundColor: isMock ? '#1890ff' : undefined }}
               />
             </div>
-          </div>
+          </div> */}
         </Header>
         <Content className={styles.contentWrapper}>
           <AnimatePresence mode="wait">
