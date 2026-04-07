@@ -3,63 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// 驼峰转下划线
-export function camelToSnake(str: string): string {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-}
+// 注意：前端已统一使用下划线命名，与后端 API 保持一致
+// 因此不再需要驼峰/下划线转换逻辑
 
-// 下划线转驼峰
-export function snakeToCamel(str: string): string {
-  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-}
-
-// 对象键名转换：驼峰 -> 下划线
-export function objectCamelToSnake<T extends Record<string, any>>(obj: T): Record<string, any> {
-  const result: Record<string, any> = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const snakeKey = camelToSnake(key);
-      result[snakeKey] = obj[key];
-    }
-  }
-  return result;
-}
-
-// 对象键名转换：下划线 -> 驼峰
-export function objectSnakeToCamel<T extends Record<string, any>>(obj: T): Record<string, any> {
-  const result: Record<string, any> = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const camelKey = snakeToCamel(key);
-      result[camelKey] = obj[key];
-    }
-  }
-  return result;
-}
-
-// 数组对象键名转换：下划线 -> 驼峰
-export function arraySnakeToCamel<T extends Record<string, any>>(arr: T[]): Record<string, any>[] {
-  return arr.map((item) => objectSnakeToCamel(item));
-}
-
-// 库存字段映射：前端 -> 后端
+// 直接返回原始数据（保留用于兼容性）
 export function stockToApi(data: Record<string, any>): Record<string, any> {
-  const result = objectCamelToSnake(data);
-  return result;
+  return data;
 }
 
-// 库存字段映射：后端 -> 前端
+// 直接返回原始数据（保留用于兼容性）
 export function stockFromApi(data: Record<string, any>): Record<string, any> {
-  return objectSnakeToCamel(data);
+  return data;
 }
 
-// 出库字段映射：前端 -> 后端
+// 直接返回原始数据（保留用于兼容性）
 export function outboundToApi(data: Record<string, any>): Record<string, any> {
-  const result = objectCamelToSnake(data);
-  return result;
+  return data;
 }
 
-// 出库字段映射：后端 -> 前端
+// 直接返回原始数据（保留用于兼容性）
 export function outboundFromApi(data: Record<string, any>): Record<string, any> {
-  return objectSnakeToCamel(data);
+  return data;
+}
+
+// 数组直接返回（保留用于兼容性）
+export function arraySnakeToCamel<T extends Record<string, any>>(arr: T[]): T[] {
+  return arr;
 }

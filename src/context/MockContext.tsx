@@ -14,8 +14,9 @@ const MockContext = createContext<MockContextType | undefined>(undefined);
 
 export const MockProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMock, setIsMock] = useState(() => {
-    const saved = localStorage.getItem('isMock');
-    return saved !== null ? JSON.parse(saved) : true;
+    // const saved = localStorage.getItem('isMock');
+    // return saved !== null ? JSON.parse(saved) : true;
+    return false;
   });
 
   useEffect(() => {

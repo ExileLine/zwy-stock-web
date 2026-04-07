@@ -27,7 +27,7 @@ import { OutboundItem, StockItem } from '../types';
 import { outboundService, OutboundPageQuery, stockService, OutboundCreateParams } from '../services/api';
 import { useMock } from '../context/MockContext';
 
-const useStyles = createStyles(({ token, css }) => ({
+const useStyles = createStyles(({ css }) => ({
   searchForm: css`
     margin-bottom: 24px;
     padding: 24px;
@@ -87,7 +87,6 @@ const OutboundManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<OutboundItem[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [stockList, setStockList] = useState<StockItem[]>([]);
   const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
 
@@ -107,17 +106,17 @@ const OutboundManagement: React.FC = () => {
         page,
         size,
         keyword: values.keyword,
-        product_serial_number: values.serialNumber,
-        product_name: values.productName,
-        product_brand: values.brand,
-        product_spec: values.spec,
-        pn_code: values.pnCode,
-        material_code: values.materialCode,
-        usage_purpose: values.purpose,
-        target_device_serial_number: values.appliedDeviceSerial,
-        target_room: values.warehouse,
-        target_device_location: values.location,
-        owner_org: values.department,
+        product_serial_number: values.product_serial_number,
+        product_name: values.product_name,
+        product_brand: values.product_brand,
+        product_spec: values.product_spec,
+        pn_code: values.pn_code,
+        material_code: values.material_code,
+        usage_purpose: values.usage_purpose,
+        target_device_serial_number: values.target_device_serial_number,
+        target_room: values.target_room,
+        target_device_location: values.target_device_location,
+        owner_org: values.owner_org,
       };
 
       Object.keys(query).forEach((key) => {
@@ -145,7 +144,7 @@ const OutboundManagement: React.FC = () => {
   // 加载库存列表用于选择
   const fetchStockList = useCallback(async () => {
     try {
-      const result = await stockService.getList(isMock, { page: 1, size: 1000 });
+      const result = await stockService.getList(isMock, { page: 1, size: 200 });
       setStockList(result.records);
     } catch (error) {
       console.error('获取库存列表失败:', error);
@@ -171,24 +170,18 @@ const OutboundManagement: React.FC = () => {
   };
 
   const handleAdd = () => {
-    setEditingId(null);
     setSelectedStock(null);
     modalForm.resetFields();
     modalForm.setFieldsValue({
-      date: dayjs(),
-      quantity: 1,
+      outbound_date: dayjs(),
+      outbound_qty: 1,
     });
     setModalVisible(true);
   };
 
-  const handleEdit = (record: OutboundItem) => {
-    // 出库记录不支持编辑（基于入库记录创建）
-    message.warning('出库记录不支持编辑，请删除后重新创建');
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await outboundService.delete(isMock, id);
+      await outboundService.delete(isMock, id.toString());
       message.success('删除成功');
       fetchData(pagination.current, pagination.pageSize);
     } catch (error) {
@@ -200,20 +193,20 @@ const OutboundManagement: React.FC = () => {
     try {
       const values = await modalForm.validateFields();
 
-      if (!values.inboundRecordId) {
+      if (!values.inbound_record_id) {
         message.error('请选择入库记录');
         return;
       }
 
       const params: OutboundCreateParams = {
-        inbound_record_id: parseInt(values.inboundRecordId),
-        outbound_qty: values.quantity,
-        outbound_date: values.date?.format('YYYY-MM-DD'),
-        usage_purpose: values.purpose,
-        target_device_serial_number: values.appliedDeviceSerial,
-        target_room: values.warehouse,
-        target_device_location: values.location,
-        owner_org: values.department,
+        inbound_record_id: parseInt(values.inbound_record_id),
+        outbound_qty: values.outbound_qty,
+        outbound_date: values.outbound_date?.format('YYYY-MM-DD'),
+        usage_purpose: values.usage_purpose,
+        target_device_serial_number: values.target_device_serial_number,
+        target_room: values.target_room,
+        target_device_location: values.target_device_location,
+        owner_org: values.owner_org,
         remark: values.remark,
       };
 
@@ -227,7 +220,7 @@ const OutboundManagement: React.FC = () => {
     }
   };
 
-  const handleStockSelect = (stockId: string) => {
+  const handleStockSelect = (stockId: number) => {
     const stock = stockList.find((s) => s.id === stockId);
     setSelectedStock(stock || null);
   };
@@ -241,41 +234,41 @@ const OutboundManagement: React.FC = () => {
     },
     {
       title: '领用日期',
-      dataIndex: 'date',
-      key: 'date',
+      dataIndex: 'outbound_date',
+      key: 'outbound_date',
       width: 120,
     },
     {
       title: '产品序列号',
-      dataIndex: 'serialNumber',
-      key: 'serialNumber',
+      dataIndex: 'product_serial_number',
+      key: 'product_serial_number',
       width: 150,
     },
     {
       title: '产品名称',
-      dataIndex: 'productName',
-      key: 'productName',
+      dataIndex: 'product_name',
+      key: 'product_name',
       width: 150,
       render: (text: string) => <span style={{ fontWeight: 500, color: '#262626' }}>{text}</span>
     },
-    { title: '品牌', dataIndex: 'brand', key: 'brand', width: 100 },
-    { title: '规格', dataIndex: 'spec', key: 'spec', width: 180 },
+    { title: '品牌', dataIndex: 'product_brand', key: 'product_brand', width: 100 },
+    { title: '规格', dataIndex: 'product_spec', key: 'product_spec', width: 180 },
     {
       title: '物料编码',
-      dataIndex: 'materialCode',
-      key: 'materialCode',
+      dataIndex: 'material_code',
+      key: 'material_code',
       width: 140,
     },
     {
       title: '领用数量',
-      dataIndex: 'quantity',
-      key: 'quantity',
+      dataIndex: 'outbound_qty',
+      key: 'outbound_qty',
       width: 100,
       render: (text: number) => <span style={{ color: '#ff4d4f', fontWeight: 600 }}>{text}</span>
     },
-    { title: '用途', dataIndex: 'purpose', key: 'purpose', width: 150 },
-    { title: '用于机房', dataIndex: 'warehouse', key: 'warehouse', width: 150 },
-    { title: '归属单位', dataIndex: 'department', key: 'department', width: 150 },
+    { title: '用途', dataIndex: 'usage_purpose', key: 'usage_purpose', width: 150 },
+    { title: '用于机房', dataIndex: 'target_room', key: 'target_room', width: 150 },
+    { title: '归属单位', dataIndex: 'owner_org', key: 'owner_org', width: 150 },
     {
       title: '操作',
       key: 'action',
@@ -308,27 +301,27 @@ const OutboundManagement: React.FC = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="productName" label="产品名称">
+            <Form.Item name="product_name" label="产品名称">
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="serialNumber" label="产品序列号">
+            <Form.Item name="product_serial_number" label="产品序列号">
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="materialCode" label="物料编码">
+            <Form.Item name="material_code" label="物料编码">
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="warehouse" label="用于机房">
+            <Form.Item name="target_room" label="用于机房">
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="department" label="归属单位">
+            <Form.Item name="owner_org" label="归属单位">
               <Input />
             </Form.Item>
           </Col>
@@ -387,7 +380,7 @@ const OutboundManagement: React.FC = () => {
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                name="inboundRecordId"
+                name="inbound_record_id"
                 label="选择入库记录"
                 rules={[{ required: true, message: '请选择入库记录' }]}
               >
@@ -400,7 +393,7 @@ const OutboundManagement: React.FC = () => {
                   onChange={handleStockSelect}
                   options={stockList.map((stock) => ({
                     value: stock.id,
-                    label: `${stock.productName} - ${stock.materialCode} - ${stock.serialNumber} (库存: ${stock.quantity}${stock.unit})`,
+                    label: `${stock.product_name} - ${stock.material_code} - ${stock.serial_number} (库存: ${stock.inbound_qty}${stock.unit})`,
                   }))}
                 />
               </Form.Item>
@@ -410,32 +403,32 @@ const OutboundManagement: React.FC = () => {
           {selectedStock && (
             <div className={styles.productInfo}>
               <Descriptions title="产品信息" column={3} size="small" bordered>
-                <Descriptions.Item label="产品名称">{selectedStock.productName}</Descriptions.Item>
-                <Descriptions.Item label="品牌">{selectedStock.brand}</Descriptions.Item>
-                <Descriptions.Item label="规格">{selectedStock.spec}</Descriptions.Item>
-                <Descriptions.Item label="物料编码">{selectedStock.materialCode}</Descriptions.Item>
-                <Descriptions.Item label="序列号">{selectedStock.serialNumber}</Descriptions.Item>
-                <Descriptions.Item label="库存数量">{selectedStock.quantity} {selectedStock.unit}</Descriptions.Item>
-                <Descriptions.Item label="入库机房" span={3}>{selectedStock.warehouse}</Descriptions.Item>
+                <Descriptions.Item label="产品名称">{selectedStock.product_name}</Descriptions.Item>
+                <Descriptions.Item label="品牌">{selectedStock.product_brand}</Descriptions.Item>
+                <Descriptions.Item label="规格">{selectedStock.product_spec}</Descriptions.Item>
+                <Descriptions.Item label="物料编码">{selectedStock.material_code}</Descriptions.Item>
+                <Descriptions.Item label="序列号">{selectedStock.serial_number}</Descriptions.Item>
+                <Descriptions.Item label="库存数量">{selectedStock.inbound_qty} {selectedStock.unit}</Descriptions.Item>
+                <Descriptions.Item label="入库机房" span={3}>{selectedStock.inbound_room}</Descriptions.Item>
               </Descriptions>
             </div>
           )}
 
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="date" label="领用日期" rules={[{ required: true }]}>
+              <Form.Item name="outbound_date" label="领用日期" rules={[{ required: true }]}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
-                name="quantity"
+                name="outbound_qty"
                 label="领用数量"
                 rules={[
                   { required: true, message: '请输入领用数量' },
                   {
                     validator: (_, value) => {
-                      if (selectedStock && value > selectedStock.quantity) {
+                      if (selectedStock && value > (selectedStock.inbound_qty || 0)) {
                         return Promise.reject(new Error('领用数量不能超过库存数量'));
                       }
                       return Promise.resolve();
@@ -447,27 +440,27 @@ const OutboundManagement: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="purpose" label="用途">
+              <Form.Item name="usage_purpose" label="用途">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="appliedDeviceSerial" label="用于设备序列号">
+              <Form.Item name="target_device_serial_number" label="用于设备序列号">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="warehouse" label="用于机房">
+              <Form.Item name="target_room" label="用于机房">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="location" label="用于设备位置">
+              <Form.Item name="target_device_location" label="用于设备位置">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="department" label="归属用户单位">
+              <Form.Item name="owner_org" label="归属用户单位">
                 <Input />
               </Form.Item>
             </Col>
@@ -484,7 +477,7 @@ const OutboundManagement: React.FC = () => {
 export default OutboundManagement;
 
 export type AddOutboundProps = {
-  editingId?: string;
+  editingId?: number;
   isMock?: boolean;
   content?: any;
   stockId?: string;  // 新增：直接指定入库记录ID
@@ -500,15 +493,15 @@ export const AddOutbound = (props: AddOutboundProps) => {
   // 加载库存列表用于选择
   const fetchStockList = useCallback(async () => {
     try {
-      const result = await stockService.getList(isMock, { page: 1, size: 1000 });
+      const result = await stockService.getList(isMock, { page: 1, size: 200 });
       setStockList(result.records);
 
       // 如果指定了 stockId，预选该记录
       if (props.stockId) {
-        const stock = result.records.find((s) => s.id === props.stockId);
+        const stock = result.records.find((s) => s.id.toString() === props.stockId);
         if (stock) {
           setSelectedStock(stock);
-          modalForm.setFieldsValue({ inboundRecordId: stock.id });
+          modalForm.setFieldsValue({ inbound_record_id: stock.id });
         }
       }
     } catch (error) {
@@ -520,8 +513,8 @@ export const AddOutbound = (props: AddOutboundProps) => {
     if (modalVisible) {
       fetchStockList();
       modalForm.setFieldsValue({
-        date: dayjs(),
-        quantity: 1,
+        outbound_date: dayjs(),
+        outbound_qty: 1,
       });
     }
   }, [modalVisible, fetchStockList]);
@@ -530,20 +523,20 @@ export const AddOutbound = (props: AddOutboundProps) => {
     try {
       const values = await modalForm.validateFields();
 
-      if (!values.inboundRecordId) {
+      if (!values.inbound_record_id) {
         message.error('请选择入库记录');
         return;
       }
 
       const params: OutboundCreateParams = {
-        inbound_record_id: parseInt(values.inboundRecordId),
-        outbound_qty: values.quantity,
-        outbound_date: values.date?.format('YYYY-MM-DD'),
-        usage_purpose: values.purpose,
-        target_device_serial_number: values.appliedDeviceSerial,
-        target_room: values.warehouse,
-        target_device_location: values.location,
-        owner_org: values.department,
+        inbound_record_id: parseInt(values.inbound_record_id),
+        outbound_qty: values.outbound_qty,
+        outbound_date: values.outbound_date?.format('YYYY-MM-DD'),
+        usage_purpose: values.usage_purpose,
+        target_device_serial_number: values.target_device_serial_number,
+        target_room: values.target_room,
+        target_device_location: values.target_device_location,
+        owner_org: values.owner_org,
         remark: values.remark,
       };
 
@@ -557,7 +550,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
     }
   };
 
-  const handleStockSelect = (stockId: string) => {
+  const handleStockSelect = (stockId: number) => {
     const stock = stockList.find((s) => s.id === stockId);
     setSelectedStock(stock || null);
   };
@@ -580,7 +573,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
-                name="inboundRecordId"
+                name="inbound_record_id"
                 label="选择入库记录"
                 rules={[{ required: true, message: '请选择入库记录' }]}
               >
@@ -594,7 +587,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
                   onChange={handleStockSelect}
                   options={stockList.map((stock) => ({
                     value: stock.id,
-                    label: `${stock.productName} - ${stock.materialCode} - ${stock.serialNumber} (库存: ${stock.quantity}${stock.unit})`,
+                    label: `${stock.product_name} - ${stock.material_code} - ${stock.serial_number} (库存: ${stock.inbound_qty}${stock.unit})`,
                   }))}
                 />
               </Form.Item>
@@ -604,32 +597,32 @@ export const AddOutbound = (props: AddOutboundProps) => {
           {selectedStock && (
             <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '4px', marginBottom: '16px' }}>
               <Descriptions title="产品信息" column={3} size="small" bordered>
-                <Descriptions.Item label="产品名称">{selectedStock.productName}</Descriptions.Item>
-                <Descriptions.Item label="品牌">{selectedStock.brand}</Descriptions.Item>
-                <Descriptions.Item label="规格">{selectedStock.spec}</Descriptions.Item>
-                <Descriptions.Item label="物料编码">{selectedStock.materialCode}</Descriptions.Item>
-                <Descriptions.Item label="序列号">{selectedStock.serialNumber}</Descriptions.Item>
-                <Descriptions.Item label="库存数量">{selectedStock.quantity} {selectedStock.unit}</Descriptions.Item>
-                <Descriptions.Item label="入库机房" span={3}>{selectedStock.warehouse}</Descriptions.Item>
+                <Descriptions.Item label="产品名称">{selectedStock.product_name}</Descriptions.Item>
+                <Descriptions.Item label="品牌">{selectedStock.product_brand}</Descriptions.Item>
+                <Descriptions.Item label="规格">{selectedStock.product_spec}</Descriptions.Item>
+                <Descriptions.Item label="物料编码">{selectedStock.material_code}</Descriptions.Item>
+                <Descriptions.Item label="序列号">{selectedStock.serial_number}</Descriptions.Item>
+                <Descriptions.Item label="库存数量">{selectedStock.inbound_qty} {selectedStock.unit}</Descriptions.Item>
+                <Descriptions.Item label="入库机房" span={3}>{selectedStock.inbound_room}</Descriptions.Item>
               </Descriptions>
             </div>
           )}
 
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="date" label="领用日期" rules={[{ required: true }]}>
+              <Form.Item name="outbound_date" label="领用日期" rules={[{ required: true }]}>
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
-                name="quantity"
+                name="outbound_qty"
                 label="领用数量"
                 rules={[
                   { required: true, message: '请输入领用数量' },
                   {
                     validator: (_, value) => {
-                      if (selectedStock && value > selectedStock.quantity) {
+                      if (selectedStock && value > (selectedStock.inbound_qty || 0)) {
                         return Promise.reject(new Error('领用数量不能超过库存数量'));
                       }
                       return Promise.resolve();
@@ -641,27 +634,27 @@ export const AddOutbound = (props: AddOutboundProps) => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="purpose" label="用途">
+              <Form.Item name="usage_purpose" label="用途">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="appliedDeviceSerial" label="用于设备序列号">
+              <Form.Item name="target_device_serial_number" label="用于设备序列号">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="warehouse" label="用于机房">
+              <Form.Item name="target_room" label="用于机房">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="location" label="用于设备位置">
+              <Form.Item name="target_device_location" label="用于设备位置">
                 <Input />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="department" label="归属用户单位">
+              <Form.Item name="owner_org" label="归属用户单位">
                 <Input />
               </Form.Item>
             </Col>
