@@ -269,26 +269,26 @@ const OutboundManagement: React.FC = () => {
     { title: '用途', dataIndex: 'usage_purpose', key: 'usage_purpose', width: 150 },
     { title: '用于机房', dataIndex: 'target_room', key: 'target_room', width: 150 },
     { title: '归属单位', dataIndex: 'owner_org', key: 'owner_org', width: 150 },
-    {
-      title: '操作',
-      key: 'action',
-      width: 100,
-      fixed: 'right' as const,
-      render: (_: any, record: OutboundItem) => (
-        <Space size="middle">
-          <Popconfirm
-            title="确定删除吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button type="link" className={`${styles.actionBtn} ${styles.deleteBtn}`}>
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    // {
+    //   title: '操作',
+    //   key: 'action',
+    //   width: 100,
+    //   fixed: 'right' as const,
+    //   render: (_: any, record: OutboundItem) => (
+    //     <Space size="middle">
+    //       <Popconfirm
+    //         title="确定删除吗？"
+    //         onConfirm={() => handleDelete(record.id)}
+    //         okText="确定"
+    //         cancelText="取消"
+    //       >
+    //         <Button type="link" className={`${styles.actionBtn} ${styles.deleteBtn}`}>
+    //           删除
+    //         </Button>
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (
