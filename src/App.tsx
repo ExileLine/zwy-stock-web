@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { Layout, Menu, Switch, Typography, ConfigProvider, theme } from 'antd';
+import { useState } from 'react';
+import { Layout, Menu, Switch, Typography, ConfigProvider, theme, Dropdown } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import {
   DatabaseOutlined,
@@ -13,10 +13,14 @@ import {
   SafetyCertificateOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import { motion, AnimatePresence } from 'motion/react';
 import { MockProvider, useMock } from './context/MockContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
 import StockManagement from './pages/StockManagement';
 import OutboundManagement from './pages/OutboundManagement';
 
@@ -222,13 +226,48 @@ const useStyles = createStyles(({ css }) => ({
       margin-left: 80px;
     }
   `,
+  userSection: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    &:hover {
+      background: #f5f5f5;
+    }
+    .username {
+      font-size: 14px;
+      font-weight: 500;
+      color: #595959;
+    }
+  `,
+  loadingContainer: css`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f7fa;
+  `,
 }));
 
-const AppContent: React.FC = () => {
+const AppContent = () => {
   const { styles } = useStyles();
   const { isMock, setIsMock } = useMock();
+  const { user, logout, isAuthenticated } = useAuth();
   const [currentMenu, setCurrentMenu] = useState('stock');
   const [collapsed, setCollapsed] = useState(false);
+
+  const userMenuItems = [
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+      onClick: logout,
+    },
+  ];
 
   const menuItems = [
     {
@@ -255,6 +294,11 @@ const AppContent: React.FC = () => {
   };
 
   const pageTitle = currentMenu === 'stock' ? '库存管理' : '出库管理';
+
+  // 未登录显示登录页面
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <Layout className={styles.layout}>
@@ -291,6 +335,26 @@ const AppContent: React.FC = () => {
             )}
             <Title level={1} className="page-title">{pageTitle}</Title>
             <Text className="page-desc">标准化物资储备与出库监管系统</Text>
+          </div>
+          <div className={styles.headerRight}>
+            <div className={styles.apiInfo}>
+              <GlobalOutlined /> 接口地址: 127.0.0.1:7777
+            </div>
+            <div className={styles.mockToggle}>
+              <span>模拟数据</span>
+              <Switch
+                checked={isMock}
+                onChange={setIsMock}
+                size="small"
+                style={{ backgroundColor: isMock ? '#1890ff' : undefined }}
+              />
+            </div>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+              <div className={styles.userSection}>
+                <UserOutlined style={{ color: '#1890ff' }} />
+                <span className="username">{user?.username || '用户'}</span>
+              </div>
+            </Dropdown>
           </div>
         </Header>
         <Content style={{ padding: '24px', overflow: 'auto' }}>
@@ -341,9 +405,11 @@ export default function App() {
         }
       }}
     >
-      <MockProvider>
-        <AppContent />
-      </MockProvider>
+      <AuthProvider>
+        <MockProvider>
+          <AppContent />
+        </MockProvider>
+      </AuthProvider>
     </ConfigProvider>
   );
 }

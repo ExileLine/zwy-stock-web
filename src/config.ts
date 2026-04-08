@@ -10,6 +10,10 @@ export const API_BASE_URL = '/api/v1';
 
 // 接口地址配置
 export const API_ENDPOINTS = {
+  // 登录相关
+  LOGIN: `${API_BASE_URL}/acc/login`,
+  LOGOUT: `${API_BASE_URL}/acc/logout`,
+
   // 库存相关
   STOCK_PAGE: `${API_BASE_URL}/stock/page`,
   STOCK_CREATE: `${API_BASE_URL}/stock/create`,

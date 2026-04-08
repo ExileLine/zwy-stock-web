@@ -31,11 +31,21 @@ async function request<T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'POST',
   body?: any
 ): Promise<T> {
+  // 从 localStorage 获取 token
+  const token = localStorage.getItem('auth_token');
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // 添加 Authorization header
+  if (token) {
+    headers['Authorization'] = token;
+  }
+
   const options: RequestInit = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
   };
 
   if (body) {
