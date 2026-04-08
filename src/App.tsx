@@ -4,12 +4,11 @@
  */
 
 import { useState } from 'react';
-import { Layout, Menu, Switch, Typography, ConfigProvider, theme, Dropdown } from 'antd';
+import { Layout, Menu, Typography, ConfigProvider, theme, Dropdown } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import {
   DatabaseOutlined,
   ExportOutlined,
-  GlobalOutlined,
   SafetyCertificateOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -18,7 +17,6 @@ import {
 } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import { motion, AnimatePresence } from 'motion/react';
-import { MockProvider, useMock } from './context/MockContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import StockManagement from './pages/StockManagement';
@@ -187,29 +185,6 @@ const useStyles = createStyles(({ css }) => ({
     gap: 16px;
     flex-shrink: 0;
   `,
-  apiInfo: css`
-    font-size: 12px;
-    color: #595959;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background: #52c41a;
-      border-radius: 50%;
-    }
-  `,
-  mockToggle: css`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #595959;
-    white-space: nowrap;
-  `,
   contentWrapper: css`
     padding: 24px;
     background: #fff;
@@ -255,7 +230,6 @@ const useStyles = createStyles(({ css }) => ({
 
 const AppContent = () => {
   const { styles } = useStyles();
-  const { isMock, setIsMock } = useMock();
   const { user, logout, isAuthenticated } = useAuth();
   const [currentMenu, setCurrentMenu] = useState('stock');
   const [collapsed, setCollapsed] = useState(false);
@@ -337,21 +311,9 @@ const AppContent = () => {
             <Text className="page-desc">标准化物资储备与出库监管系统</Text>
           </div>
           <div className={styles.headerRight}>
-            <div className={styles.apiInfo}>
-              <GlobalOutlined /> 接口地址: 127.0.0.1:7777
-            </div>
-            <div className={styles.mockToggle}>
-              <span>模拟数据</span>
-              <Switch
-                checked={isMock}
-                onChange={setIsMock}
-                size="small"
-                style={{ backgroundColor: isMock ? '#1890ff' : undefined }}
-              />
-            </div>
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <div className={styles.userSection}>
-                <UserOutlined style={{ color: '#1890ff' }} />
+                <UserOutlined />
                 <span className="username">{user?.username || '用户'}</span>
               </div>
             </Dropdown>
@@ -406,9 +368,7 @@ export default function App() {
       }}
     >
       <AuthProvider>
-        <MockProvider>
-          <AppContent />
-        </MockProvider>
+        <AppContent />
       </AuthProvider>
     </ConfigProvider>
   );

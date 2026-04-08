@@ -25,7 +25,6 @@ import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
 import { OutboundItem, StockItem } from '../types';
 import { outboundService, OutboundPageQuery, stockService, OutboundCreateParams } from '../services/api';
-import { useMock } from '../context/MockContext';
 
 const useStyles = createStyles(({ css }) => ({
   searchForm: css`
@@ -81,7 +80,6 @@ const useStyles = createStyles(({ css }) => ({
 
 const OutboundManagement: React.FC = () => {
   const { styles } = useStyles();
-  const { isMock } = useMock();
   const [form] = Form.useForm();
   const [modalForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -125,7 +123,7 @@ const OutboundManagement: React.FC = () => {
         }
       });
 
-      const result = await outboundService.getList(isMock, query);
+      const result = await outboundService.getList(query);
       setData(result.records);
       setPagination((prev) => ({
         ...prev,
@@ -139,17 +137,17 @@ const OutboundManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [isMock, form]);
+  }, [form]);
 
   // 加载库存列表用于选择
   const fetchStockList = useCallback(async () => {
     try {
-      const result = await stockService.getList(isMock, { page: 1, size: 200 });
+      const result = await stockService.getList({ page: 1, size: 200 });
       setStockList(result.records);
     } catch (error) {
       console.error('获取库存列表失败:', error);
     }
-  }, [isMock]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -181,7 +179,7 @@ const OutboundManagement: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await outboundService.delete(isMock, id.toString());
+      await outboundService.delete(id.toString());
       message.success('删除成功');
       fetchData(pagination.current, pagination.pageSize);
     } catch (error) {
@@ -210,7 +208,7 @@ const OutboundManagement: React.FC = () => {
         remark: values.remark,
       };
 
-      await outboundService.add(isMock, params);
+      await outboundService.add(params);
       message.success('出库成功');
       setModalVisible(false);
       fetchData(pagination.current, pagination.pageSize);
@@ -478,7 +476,6 @@ export default OutboundManagement;
 
 export type AddOutboundProps = {
   editingId?: number;
-  isMock?: boolean;
   content?: any;
   stockId?: string;  // 新增：直接指定入库记录ID
   onFinish?: () => void;  // 新增：出库成功后的回调方法
@@ -486,7 +483,6 @@ export type AddOutboundProps = {
 
 export const AddOutbound = (props: AddOutboundProps) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const isMock = props.isMock || false;
   const [modalForm] = Form.useForm();
   const [stockList, setStockList] = useState<StockItem[]>([]);
   const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
@@ -494,7 +490,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
   // 加载库存列表用于选择
   const fetchStockList = useCallback(async () => {
     try {
-      const result = await stockService.getList(isMock, { page: 1, size: 200 });
+      const result = await stockService.getList({ page: 1, size: 200 });
       setStockList(result.records);
 
       // 如果指定了 stockId，预选该记录
@@ -508,7 +504,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
     } catch (error) {
       console.error('获取库存列表失败:', error);
     }
-  }, [isMock, props.stockId]);
+  }, [props.stockId]);
 
   useEffect(() => {
     if (modalVisible) {
@@ -541,7 +537,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
         remark: values.remark,
       };
 
-      await outboundService.add(isMock, params);
+      await outboundService.add(params);
       message.success('出库成功');
       setModalVisible(false);
       // 刷新页面数据（通过事件或回调）

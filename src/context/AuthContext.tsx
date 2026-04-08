@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await fetch('/api/v1/acc/logout', {
           method: 'DELETE',
           headers: {
-            'Authorization': user.token,
+            'token': user.token,
           },
         });
       }

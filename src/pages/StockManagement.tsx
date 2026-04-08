@@ -24,7 +24,6 @@ import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
 import { StockItem } from '../types';
 import { stockService, StockPageQuery } from '../services/api';
-import { useMock } from '../context/MockContext';
 import { AddOutbound } from './OutboundManagement';
 
 const useStyles = createStyles(({ token, css }) => ({
@@ -75,7 +74,6 @@ const useStyles = createStyles(({ token, css }) => ({
 
 const StockManagement: React.FC = () => {
   const { styles } = useStyles();
-  const { isMock } = useMock();
   const [form] = Form.useForm();
   const [modalForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -122,7 +120,7 @@ const StockManagement: React.FC = () => {
         }
       });
 
-      const result = await stockService.getList(isMock, query);
+      const result = await stockService.getList(query);
       setData(result.records);
       setPagination((prev) => ({
         ...prev,
@@ -136,7 +134,7 @@ const StockManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [isMock, form]);
+  }, [form]);
 
   useEffect(() => {
     fetchData();
@@ -173,7 +171,7 @@ const StockManagement: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await stockService.delete(isMock, id.toString());
+      await stockService.delete(id.toString());
       message.success('删除成功');
       fetchData(pagination.current, pagination.pageSize);
     } catch (error:any) {
@@ -190,10 +188,10 @@ const StockManagement: React.FC = () => {
       };
 
       if (editingId) {
-        await stockService.update(isMock, editingId.toString(), formattedValues);
+        await stockService.update(editingId.toString(), formattedValues);
         message.success('更新成功');
       } else {
-        await stockService.add(isMock, formattedValues);
+        await stockService.add(formattedValues);
         message.success('新增成功');
       }
       setModalVisible(false);
@@ -258,7 +256,6 @@ const StockManagement: React.FC = () => {
           <AddOutbound
             onFinish={() => handleSearch()}
             stockId={record.id.toString()}
-            isMock={isMock}
             content={(
               <Button
                 type='link'

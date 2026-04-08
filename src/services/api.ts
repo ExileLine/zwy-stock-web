@@ -4,12 +4,7 @@
  */
 
 import { StockItem, OutboundItem } from '../types';
-import { mockStockData, mockOutboundData } from './mockData';
 import { API_ENDPOINTS } from '../config';
-
-// In-memory mock storage
-let currentStockData = [...mockStockData];
-let currentOutboundData = [...mockOutboundData];
 
 // API 响应类型
 interface ApiResponse<T = any> {
@@ -38,9 +33,9 @@ async function request<T>(
     'Content-Type': 'application/json',
   };
 
-  // 添加 Authorization header
+  // 添加 token header (后端期望的字段名是 "token")
   if (token) {
-    headers['Authorization'] = token;
+    headers['token'] = token;
   }
 
   const options: RequestInit = {
@@ -103,27 +98,7 @@ export interface OutboundPageQuery {
 }
 
 export const stockService = {
-  async getList(isMock: boolean, query?: StockPageQuery): Promise<{ records: StockItem[]; total: number }> {
-    if (isMock) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          let filteredData = [...currentStockData];
-          // Mock 简单过滤
-          if (query?.keyword) {
-            filteredData = filteredData.filter((item) =>
-              item.product_name?.includes(query.keyword!) ||
-              item.product_brand?.includes(query.keyword!) ||
-              item.material_code?.includes(query.keyword!)
-            );
-          }
-          resolve({
-            records: filteredData.slice(0, query?.size || 10),
-            total: filteredData.length,
-          });
-        }, 300);
-      });
-    }
-
+  async getList(query?: StockPageQuery): Promise<{ records: StockItem[]; total: number }> {
     const params = { page: 1, size: 20, ...query };
     const result = await request<PageResult>(API_ENDPOINTS.STOCK_PAGE, 'POST', params);
     return {
@@ -132,38 +107,18 @@ export const stockService = {
     };
   },
 
-  async add(isMock: boolean, item: Omit<StockItem, 'id'>): Promise<StockItem> {
-    if (isMock) {
-      const newItem = { ...item, id: Math.floor(Math.random() * 1000000) };
-      currentStockData = [newItem as StockItem, ...currentStockData];
-      return newItem as StockItem;
-    }
-
+  async add(item: Omit<StockItem, 'id'>): Promise<StockItem> {
     const result = await request<any>(API_ENDPOINTS.STOCK_CREATE, 'POST', item);
     return result as StockItem;
   },
 
-  async update(isMock: boolean, id: string, item: Partial<StockItem>): Promise<StockItem> {
-    if (isMock) {
-      const index = currentStockData.findIndex((i) => i.id.toString() === id);
-      if (index !== -1) {
-        currentStockData[index] = { ...currentStockData[index], ...item };
-        return currentStockData[index];
-      }
-      throw new Error('Item not found');
-    }
-
+  async update(id: string, item: Partial<StockItem>): Promise<StockItem> {
     const apiData = { ...item, id: parseInt(id) };
     const result = await request<any>(API_ENDPOINTS.STOCK_UPDATE, 'POST', apiData);
     return result as StockItem;
   },
 
-  async delete(isMock: boolean, id: string): Promise<void> {
-    if (isMock) {
-      currentStockData = currentStockData.filter((i) => i.id.toString() !== id);
-      return;
-    }
-
+  async delete(id: string): Promise<void> {
     await request<void>(API_ENDPOINTS.STOCK_DELETE, 'POST', { id: parseInt(id) });
   },
 };
@@ -183,27 +138,7 @@ export interface OutboundCreateParams {
 }
 
 export const outboundService = {
-  async getList(isMock: boolean, query?: OutboundPageQuery): Promise<{ records: OutboundItem[]; total: number }> {
-    if (isMock) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          let filteredData = [...currentOutboundData];
-          // Mock 简单过滤
-          if (query?.keyword) {
-            filteredData = filteredData.filter((item) =>
-              item.product_name?.includes(query.keyword!) ||
-              item.material_code?.includes(query.keyword!) ||
-              item.usage_purpose?.includes(query.keyword!)
-            );
-          }
-          resolve({
-            records: filteredData.slice(0, query?.size || 10),
-            total: filteredData.length,
-          });
-        }, 300);
-      });
-    }
-
+  async getList(query?: OutboundPageQuery): Promise<{ records: OutboundItem[]; total: number }> {
     const params = { page: 1, size: 20, ...query };
     const result = await request<PageResult>(API_ENDPOINTS.OUTBOUND_PAGE, 'POST', params);
     return {
@@ -213,61 +148,8 @@ export const outboundService = {
   },
 
   // 基于入库记录创建出库
-  async add(isMock: boolean, params: OutboundCreateParams): Promise<OutboundItem> {
-    if (isMock) {
-      // Mock 模式：从入库数据中查找对应的记录
-      const stockItem = currentStockData.find((item) => item.id === params.inbound_record_id);
-      if (!stockItem) {
-        throw new Error('入库记录不存在');
-      }
-      const newItem: OutboundItem = {
-        id: Math.floor(Math.random() * 1000000),
-        outbound_date: params.outbound_date || new Date().toISOString().split('T')[0],
-        product_serial_number: stockItem.serial_number || '',
-        product_name: stockItem.product_name,
-        product_brand: stockItem.product_brand || '',
-        product_spec: stockItem.product_spec || '',
-        pn_code: stockItem.pn_code || '',
-        material_code: stockItem.material_code || '',
-        outbound_qty: params.outbound_qty,
-        usage_purpose: params.usage_purpose || '',
-        target_room: params.target_room || '',
-        owner_org: params.owner_org || '',
-        target_device_serial_number: params.target_device_serial_number,
-        target_device_location: params.target_device_location,
-        remark: params.remark,
-      };
-      currentOutboundData = [newItem as OutboundItem, ...currentOutboundData];
-      return newItem as OutboundItem;
-    }
-
+  async add(params: OutboundCreateParams): Promise<OutboundItem> {
     const result = await request<any>(API_ENDPOINTS.OUTBOUND_CREATE, 'POST', params);
     return result as OutboundItem;
-  },
-
-  // 出库更新接口（swagger 中未定义，保留原逻辑用于 mock 模式）
-  async update(isMock: boolean, id: string, item: Partial<OutboundItem>): Promise<OutboundItem> {
-    if (isMock) {
-      const index = currentOutboundData.findIndex((i) => i.id.toString() === id);
-      if (index !== -1) {
-        currentOutboundData[index] = { ...currentOutboundData[index], ...item };
-        return currentOutboundData[index];
-      }
-      throw new Error('Item not found');
-    }
-
-    // 如果后端实现了更新接口，可以在这里调用
-    throw new Error('出库记录更新接口暂未实现');
-  },
-
-  // 出库删除接口（swagger 中未定义，保留原逻辑用于 mock 模式）
-  async delete(isMock: boolean, id: string): Promise<void> {
-    if (isMock) {
-      currentOutboundData = currentOutboundData.filter((i) => i.id.toString() !== id);
-      return;
-    }
-
-    // 如果后端实现了删除接口，可以在这里调用
-    throw new Error('出库记录删除接口暂未实现');
   },
 };
