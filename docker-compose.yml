@@ -1,0 +1,9 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8111:80"
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./nginx.conf.example:/etc/nginx/conf.d/default.conf
+    restart: unless-stopped

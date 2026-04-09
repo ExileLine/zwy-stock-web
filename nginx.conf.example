@@ -6,12 +6,12 @@ server {
     server_name your-domain.com;  # 修改为你的域名
 
     # 前端静态文件根目录
-    root /var/www/dist;  # 修改为你的 dist 目录路径
+    root /usr/share/nginx/html;
     index index.html;
 
     # API 代理配置
     location /api {
-        proxy_pass http://localhost:7777;  # 后端服务地址
+        proxy_pass http://10.30.0.30:7777;  # 后端服务地址
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
