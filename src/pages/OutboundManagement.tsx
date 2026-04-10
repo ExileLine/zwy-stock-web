@@ -267,8 +267,6 @@ const OutboundManagement: React.FC = () => {
     { title: '用途', dataIndex: 'usage_purpose', key: 'usage_purpose', width: 150 },
     { title: '用于机房', dataIndex: 'target_room', key: 'target_room', width: 150 },
     { title: '归属单位', dataIndex: 'owner_org', key: 'owner_org', width: 150 },
-    { title: '供应商', dataIndex: 'supplier', key: 'supplier', width: 150 },
-    { title: '维保期', dataIndex: 'warranty_period', key: 'warranty_period', width: 150 },
     // {
     //   title: '操作',
     //   key: 'action',
@@ -658,16 +656,6 @@ export const AddOutbound = (props: AddOutboundProps) => {
             <Col span={8}>
               <Form.Item name="owner_org" label="归属用户单位">
                 <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="supplier" label="供应商">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="warranty_period" label="维保期">
-                <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>

@@ -185,6 +185,7 @@ const StockManagement: React.FC = () => {
       const formattedValues = {
         ...values,
         inbound_date: values.inbound_date ? values.inbound_date.format('YYYY-MM-DD') : undefined,
+        warranty_period: values.warranty_period ? values.warranty_period.format('YYYY-MM-DD') : undefined,
       };
 
       if (editingId) {
@@ -246,6 +247,8 @@ const StockManagement: React.FC = () => {
     },
     { title: '单位', dataIndex: 'unit', key: 'unit', width: 80 },
     { title: '入库机房', dataIndex: 'inbound_room', key: 'inbound_room', width: 150 },
+    { title: '供应商', dataIndex: 'supplier', key: 'supplier', width: 150 },
+    { title: '维保期', dataIndex: 'warranty_period', key: 'warranty_period', width: 150 },
     {
       title: '操作',
       key: 'action',
@@ -459,6 +462,16 @@ const StockManagement: React.FC = () => {
             <Col span={8}>
               <Form.Item name="storage_location" label="存放位置">
                 <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="supplier" label="供应商">
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="warranty_period" label="维保期">
+                <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
