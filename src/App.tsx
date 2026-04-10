@@ -14,6 +14,7 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
   LogoutOutlined,
+  InboxOutlined,
 } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import { motion, AnimatePresence } from 'motion/react';
@@ -21,6 +22,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import StockManagement from './pages/StockManagement';
 import OutboundManagement from './pages/OutboundManagement';
+import InventoryManagement from './pages/InventoryManagement';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -231,7 +233,7 @@ const useStyles = createStyles(({ css }) => ({
 const AppContent = () => {
   const { styles } = useStyles();
   const { user, logout, isAuthenticated } = useAuth();
-  const [currentMenu, setCurrentMenu] = useState('stock');
+  const [currentMenu, setCurrentMenu] = useState('inventory');
   const [collapsed, setCollapsed] = useState(false);
 
   const userMenuItems = [
@@ -245,9 +247,14 @@ const AppContent = () => {
 
   const menuItems = [
     {
+      key: 'inventory',
+      icon: <InboxOutlined />,
+      label: '库存管理',
+    },
+    {
       key: 'stock',
       icon: <DatabaseOutlined />,
-      label: '库存管理',
+      label: '入库管理',
     },
     {
       key: 'outbound',
@@ -262,12 +269,18 @@ const AppContent = () => {
         return <StockManagement />;
       case 'outbound':
         return <OutboundManagement />;
+      case 'inventory':
+        return <InventoryManagement />;
       default:
         return <StockManagement />;
     }
   };
 
-  const pageTitle = currentMenu === 'stock' ? '库存管理' : '出库管理';
+  const pageTitle = {
+    stock: '入库管理',
+    outbound: '出库管理',
+    inventory: '库存管理',
+  }[currentMenu] || '入库管理';
 
   // 未登录显示登录页面
   if (!isAuthenticated) {

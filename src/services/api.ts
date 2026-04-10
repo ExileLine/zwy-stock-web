@@ -135,6 +135,22 @@ export interface OutboundCreateParams {
   target_device_location?: string;  // 用于设备位置
   owner_org?: string;         // 设备归属用户单位
   remark?: string;            // 备注
+  supplier?: string;          // 供应商
+  warranty_period?: string;   // 维保期
+}
+
+// 大类统计项类型
+export interface MajorCategoryStatItem {
+  major_category: string;
+  record_count: number;
+  total_inbound_qty: number;
+}
+
+// 大类统计查询参数
+export interface MajorCategoryStatQuery {
+  page?: number;
+  size?: number;
+  model_config?: string;
 }
 
 export const outboundService = {
@@ -151,5 +167,27 @@ export const outboundService = {
   async add(params: OutboundCreateParams): Promise<OutboundItem> {
     const result = await request<any>(API_ENDPOINTS.OUTBOUND_CREATE, 'POST', params);
     return result as OutboundItem;
+  },
+};
+
+// 大类统计服务
+export const majorCategoryService = {
+  // 获取大类统计列表
+  async getStatList(query?: MajorCategoryStatQuery): Promise<{ records: MajorCategoryStatItem[]; total: number }> {
+    const params = { page: 1, size: 20, ...query };
+    const result = await request<PageResult>(API_ENDPOINTS.MAJOR_CATEGORY_PAGE, 'POST', params);
+    return {
+      records: (result.records || []) as MajorCategoryStatItem[],
+      total: result.total || 0,
+    };
+  },
+
+  // 获取指定大类的库存明细
+  async getCategoryList(params: { major_category: string; page?: number; size?: number; keyword?: string }): Promise<{ records: StockItem[]; total: number }> {
+    const result = await request<PageResult>(API_ENDPOINTS.MAJOR_CATEGORY_LIST_PAGE, 'POST', params);
+    return {
+      records: (result.records || []) as StockItem[],
+      total: result.total || 0,
+    };
   },
 };

@@ -25,4 +25,8 @@ export const API_ENDPOINTS = {
   OUTBOUND_CREATE: `${API_BASE_URL}/stock/outbound/create`,
   OUTBOUND_UPDATE: `${API_BASE_URL}/stock/outbound/update`,
   OUTBOUND_DELETE: `${API_BASE_URL}/stock/outbound/delete`,
+
+  // 大类统计相关
+  MAJOR_CATEGORY_PAGE: `${API_BASE_URL}/stock/major-category/page`,
+  MAJOR_CATEGORY_LIST_PAGE: `${API_BASE_URL}/stock/major-category/list/page`,
 } as const;
