@@ -267,6 +267,8 @@ const OutboundManagement: React.FC = () => {
     { title: '用途', dataIndex: 'usage_purpose', key: 'usage_purpose', width: 150 },
     { title: '用于机房', dataIndex: 'target_room', key: 'target_room', width: 150 },
     { title: '归属单位', dataIndex: 'owner_org', key: 'owner_org', width: 150 },
+    { title: '供应商', dataIndex: 'supplier', key: 'supplier', width: 150 },
+    { title: '维保期', dataIndex: 'warranty_period', key: 'warranty_period', width: 150 },
     // {
     //   title: '操作',
     //   key: 'action',
@@ -434,7 +436,7 @@ const OutboundManagement: React.FC = () => {
                   }
                 ]}
               >
-                <InputNumber min={1} style={{ width: '100%' }} readOnly />
+                <InputNumber min={1} style={{ width: '100%' }} readOnly disabled />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -535,6 +537,8 @@ export const AddOutbound = (props: AddOutboundProps) => {
         target_device_location: values.target_device_location,
         owner_org: values.owner_org,
         remark: values.remark,
+        supplier: values.supplier,
+        warranty_period: values.warranty_period?.format('YYYY-MM-DD'),
       };
 
       await outboundService.add(params);
@@ -628,7 +632,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
                   }
                 ]}
               >
-                <InputNumber min={1} style={{ width: '100%' }} readOnly />
+                <InputNumber min={1} style={{ width: '100%' }} readOnly disabled/>
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -654,6 +658,16 @@ export const AddOutbound = (props: AddOutboundProps) => {
             <Col span={8}>
               <Form.Item name="owner_org" label="归属用户单位">
                 <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="supplier" label="供应商">
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item name="warranty_period" label="维保期">
+                <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
