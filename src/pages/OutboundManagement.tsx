@@ -167,25 +167,25 @@ const OutboundManagement: React.FC = () => {
     fetchData(paginationInfo.current, paginationInfo.pageSize);
   };
 
-  const handleAdd = () => {
-    setSelectedStock(null);
-    modalForm.resetFields();
-    modalForm.setFieldsValue({
-      outbound_date: dayjs(),
-      outbound_qty: 1,
-    });
-    setModalVisible(true);
-  };
+  // const handleAdd = () => {
+  //   setSelectedStock(null);
+  //   modalForm.resetFields();
+  //   modalForm.setFieldsValue({
+  //     outbound_date: dayjs(),
+  //     outbound_qty: 1,
+  //   });
+  //   setModalVisible(true);
+  // };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await outboundService.delete(id.toString());
-      message.success('删除成功');
-      fetchData(pagination.current, pagination.pageSize);
-    } catch (error) {
-      message.error(error instanceof Error ? error.message : '删除失败');
-    }
-  };
+  // const handleDelete = async (id: number) => {
+  //   try {
+  //     await outboundService.delete(id.toString());
+  //     message.success('删除成功');
+  //     fetchData(pagination.current, pagination.pageSize);
+  //   } catch (error) {
+  //     message.error(error instanceof Error ? error.message : '删除失败');
+  //   }
+  // };
 
   const handleModalOk = async () => {
     try {
@@ -434,7 +434,7 @@ const OutboundManagement: React.FC = () => {
                   }
                 ]}
               >
-                <InputNumber min={1} style={{ width: '100%' }} />
+                <InputNumber min={1} style={{ width: '100%' }} readOnly />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -628,7 +628,7 @@ export const AddOutbound = (props: AddOutboundProps) => {
                   }
                 ]}
               >
-                <InputNumber min={1} style={{ width: '100%' }} />
+                <InputNumber min={1} style={{ width: '100%' }} readOnly />
               </Form.Item>
             </Col>
             <Col span={8}>

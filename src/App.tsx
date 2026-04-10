@@ -247,7 +247,7 @@ const AppContent = () => {
     {
       key: 'stock',
       icon: <DatabaseOutlined />,
-      label: '库存管理',
+      label: '入库管理',
     },
     {
       key: 'outbound',
@@ -267,7 +267,7 @@ const AppContent = () => {
     }
   };
 
-  const pageTitle = currentMenu === 'stock' ? '库存管理' : '出库管理';
+  const pageTitle = currentMenu === 'stock' ? '入库管理' : '出库管理';
 
   // 未登录显示登录页面
   if (!isAuthenticated) {
